@@ -1,0 +1,476 @@
+/*
+ * 색은 두 묶음이다.
+ *  - 사이트(라이트 에디토리얼 + 도트 UI): 페이지 바탕·글·선·포인트 색. 게임창 바깥 전부.
+ *  - 게임(도트): 캔버스(readPalette)와 게임창 안의 창(코딩창·레벨업·터치 버튼)이 쓰는 색. 바꾸면 게임 그림이 바뀐다.
+ *
+ * 글꼴: 짧은 글(제목·라벨·버튼·카드 제목·키 배지)은 도트(--pixel-ui), 읽는 글(본문·설명)은 Pretendard(--sans).
+ */
+:root{
+  /* 사이트 */
+  --bg:#F6F4EF;
+  --bg-2:#EDE9E0;
+  --surface:#FBFAF7;
+  --text:#161616;
+  --text-2:#5A5A55;
+  --text-3:#8A877F;
+  --line:#161616;
+  --line-soft:#D9D4C9;
+  --accent:#FF5A1F;
+  --accent-text:#C2410C; /* 작은 글씨용 — 주황 그대로는 밝은 바탕에서 대비가 모자란다 */
+  --device:#161616;
+  --sans:'Pretendard Variable',Pretendard,-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --pixel-ui:'Galmuri11','Pretendard Variable',Pretendard,-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --mono:'GalmuriMono11',ui-monospace,monospace;
+  --page:1280px;
+  /* 도트 UI: 모서리를 계단처럼 깎은 버튼, 번지지 않는 딱딱한 그림자 */
+  --notch:polygon(4px 0,calc(100% - 4px) 0,100% 4px,100% calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,0 calc(100% - 4px),0 4px);
+  --notch-lg:polygon(8px 0,calc(100% - 8px) 0,calc(100% - 8px) 4px,calc(100% - 4px) 4px,calc(100% - 4px) 8px,100% 8px,100% calc(100% - 8px),calc(100% - 4px) calc(100% - 8px),calc(100% - 4px) calc(100% - 4px),calc(100% - 8px) calc(100% - 4px),calc(100% - 8px) 100%,8px 100%,8px calc(100% - 4px),4px calc(100% - 4px),4px calc(100% - 8px),0 calc(100% - 8px),0 8px,4px 8px,4px 4px,8px 4px);
+
+  /* 게임 — "먹과 주황"(2026-10-05 사용자 선택): 페이지의 먹색·주황을 이어받은 어두운 방 */
+  --void:#121212;
+  --void-2:#1C1B19;
+  --floor-a:#2B2926;
+  --floor-b:#25231F;
+  --wall-top:#6B665D;
+  --wall-side:#45413B;
+  --ink:#F6F4EF;
+  --ink-dim:#A29D92;
+  --brass:#FF5A1F;      /* 문틀·강조 — 페이지 --accent와 같은 주황 */
+  --brass-dark:#B8461A;
+  --jade:#7FD1B9;       /* 작동 중·성공·투사체 */
+  /* 게임 그림 디테일(2026-10-15, 그래픽 개선 B안 — 픽셀 + 조명). 타일 음영·외곽선·소품·조명 색 */
+  --floor-hi:#38342F;   --floor-lo:#1D1B18;
+  --wall-hi:#8A857A;    --wall-face:#57534B;  --outline:#0E0D0C;
+  --metal:#8A857A;      --metal-hi:#B9B3A6;
+  --carpet:#4A2A1E;     --carpet-dark:#35201A; --carpet-hi:#6A3A22;
+  --leaf:#5FB49A;       --leaf-dark:#3E6B5E;
+  --hair-hi:#FF8A5C;    --skin-shade:#D9D3C6;  --blush:#E89A82;
+  --light-ambient:#7A706A; /* 조명 맵 바탕(곱하기) — 어두울수록 방이 어둡다 */
+  --light-warm:#FFD7AE;    /* 천장등·벽등·캐릭터 주변 빛 */
+  --unit-ally:#5BE37A;     /* AI 진화 체험판 아군(초록 — 사용자 요청, 파랑보다 아군 느낌) */
+  --unit-enemy:#FF4D5E;    /* AI 진화 체험판 적(빨강) */
+  --pixel:'Galmuri11','Galmuri9',-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  font-size:16px;
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+  word-break:keep-all;
+}
+button{font-family:inherit;font-size:inherit;color:inherit;background:none;border:none;cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2px dashed var(--accent);outline-offset:3px}
+::selection{background:var(--accent);color:var(--surface)}
+
+/* ---------- 도트 UI 공용 ---------- */
+/* 주 버튼: 먹색 바탕 + 깎인 모서리. 누르면 살짝 내려앉는다 */
+.btn-primary,.hero-cta,.doc-pdf,.pyf-stats button{
+  display:inline-flex;align-items:center;gap:10px;
+  font-family:var(--pixel-ui);font-size:14px;text-decoration:none;
+  background:var(--text);color:var(--bg);clip-path:var(--notch);
+  transition:background .12s, transform .08s;
+}
+.btn-primary:hover,.hero-cta:hover,.doc-pdf:hover,.pyf-stats button:hover{background:var(--accent)}
+.btn-primary:active,.hero-cta:active,.doc-pdf:active,.pyf-stats button:active{transform:translate(1px,1px)}
+/* 보조 버튼: 두꺼운 테두리 + 주황 그림자. 누르면 그림자 쪽으로 눌린다 */
+#to-list,.close{
+  font-family:var(--pixel-ui);font-size:13px;
+  border:2px solid var(--line);background:var(--surface);
+  box-shadow:3px 3px 0 var(--accent);
+  transition:transform .08s, box-shadow .08s;
+}
+#to-list:hover,.close:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--accent)}
+#to-list:active,.close:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--accent)}
+/* 카드: 테두리 + 딱딱한 먹색 그림자. 올리면 떠오르며 그림자가 주황으로 */
+.room-card,.doc-card{
+  display:flex;flex-direction:column;text-align:left;
+  background:var(--surface);border:2px solid var(--line);
+  box-shadow:4px 4px 0 var(--line);
+  transition:transform .08s, box-shadow .08s;
+}
+.room-card:hover,.doc-card:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--accent)}
+.room-card:active,.doc-card:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--accent)}
+
+/* ---------- 공용 본문 ---------- */
+.prose{max-width:68ch}
+.prose h3{font-family:var(--pixel-ui);font-size:16px;font-weight:700;margin:28px 0 8px}
+.prose h3:first-child{margin-top:0}
+.prose p{margin-bottom:14px;color:var(--text-2)}
+.prose ul{margin:0 0 14px 1.1em;color:var(--text-2)}
+.prose li{margin-bottom:6px}
+.prose code{font-family:var(--mono);font-size:.88em;background:var(--bg-2);padding:1px 6px;color:var(--text)}
+.prose .note{
+  border-left:2px dashed var(--accent);padding-left:14px;
+  color:var(--text-3);font-size:14px;
+}
+
+/* ---------- 배경 파티클 ---------- */
+.pixel-bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.pixel-bg canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges}
+
+/* ---------- 상단바 ---------- */
+.site-header{
+  position:sticky;top:0;z-index:15;
+  background:color-mix(in srgb,var(--bg) 88%,transparent);
+  -webkit-backdrop-filter:saturate(1.4) blur(10px);backdrop-filter:saturate(1.4) blur(10px);
+  border-bottom:2px dashed var(--line);
+}
+.site-header-inner{
+  max-width:var(--page);margin:0 auto;padding:14px 24px;
+  display:flex;justify-content:space-between;align-items:center;gap:16px;
+}
+.brand{font-family:var(--pixel-ui);font-weight:700;text-decoration:none;font-size:15px;white-space:nowrap}
+.brand-mark{color:var(--accent)}
+.site-nav{display:flex;gap:clamp(14px,3vw,28px)}
+.site-nav a{font-family:var(--pixel-ui);text-decoration:none;font-size:13px;color:var(--text-2)}
+.site-nav a:hover{color:var(--text)}
+.site-nav a:hover::before{content:"▶ ";color:var(--accent)}
+/* 좁은 화면: 상단바 글자를 줄여 한 줄에 맞춘다 */
+@media (max-width:440px){
+  .site-header-inner{padding:12px 16px;gap:12px}
+  .brand{font-size:12px}
+  .site-nav{gap:12px}
+  .site-nav a{font-size:12px}
+}
+
+/* ---------- 히어로 ---------- */
+.hero{max-width:var(--page);margin:0 auto;padding:clamp(56px,11vw,128px) 24px clamp(48px,8vw,96px)}
+.caret{animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+/* 제목은 Pretendard, 그 안의 "게임"만 도트 글꼴 + 주황 */
+.hero h1{
+  font-family:var(--sans);font-weight:800;
+  font-size:clamp(36px,7.4vw,80px);line-height:1.15;letter-spacing:-.04em;
+  margin:0 0 24px;
+}
+.hero h1 em{font-style:normal;font-family:var(--pixel-ui);font-weight:700;letter-spacing:0;color:var(--accent)}
+.pitch{font-size:clamp(16px,2vw,19px);color:var(--text-2);max-width:38ch}
+.hero-cta{margin-top:32px;padding:13px 20px}
+
+/* ---------- 섹션 머리 (번호 · 이름 · 점선) ---------- */
+.sec-head{
+  display:flex;align-items:center;gap:12px;
+  border-top:2px dashed var(--line);padding-top:12px;margin-bottom:24px;
+  font-family:var(--pixel-ui);
+}
+.sec-num{font-size:13px;color:var(--accent-text)}
+.sec-name{font-size:13px}
+
+/* ---------- 게임 섹션 ---------- */
+.game-section{max-width:var(--page);margin:0 auto;padding:0 24px 72px}
+#to-list{margin-left:auto;padding:6px 14px}
+#game-title{font-family:var(--pixel-ui);font-size:clamp(24px,3.6vw,36px);font-weight:700;line-height:1.3}
+.game-title-pre{display:block;font-family:var(--sans);font-size:14px;font-weight:500;color:var(--text-3);margin-bottom:4px}
+
+/* 조작 배지 — 모바일에서도 숨기지 않는다 */
+.controls-panel{
+  display:flex;flex-wrap:wrap;gap:8px 18px;
+  padding:16px 0 18px;font-size:14px;color:var(--text-2);
+}
+.key-badge{display:inline-flex;align-items:center;gap:8px}
+.key-badge kbd{
+  font-family:var(--pixel-ui);font-size:12px;color:var(--text);
+  background:var(--surface);border:2px solid var(--line-soft);border-bottom-color:var(--text-3);
+  padding:2px 8px;line-height:1.4;white-space:nowrap;
+}
+
+/* 게임창 = 어두운 기기 화면(모서리를 계단처럼 깎음). 안쪽은 도트(게임) 스타일 */
+.game-window{
+  width:fit-content;max-width:100%;margin:0 auto;
+  background:var(--device);clip-path:var(--notch-lg);
+  padding:10px;display:flex;justify-content:center;position:relative;
+  font-family:var(--pixel);color:var(--ink);font-size:14px;line-height:1.7;
+  -webkit-font-smoothing:none;word-break:normal;
+}
+.stage{position:relative;min-width:0}
+.screen{position:relative}
+canvas#game{
+  /* 실제 픽셀은 정수배로 확대돼 있고, 화면 크기로 살짝 줄일 때만 부드럽게 — 픽셀 폭이 들쭉날쭉하지 않게 */
+  image-rendering:auto;
+  display:block;touch-action:none;background:var(--void);
+}
+#room-tag{color:var(--text-3);font-size:14px;padding:12px 0 0;text-align:center}
+
+/* ---------- 방 소개 페이지 (방 이동 방향으로 슬라이드) ---------- */
+.room-stage{display:grid;overflow-x:clip;margin-top:40px}
+.room-page{grid-area:1/1;min-width:0;padding:0 6px 6px 0} /* 카드 그림자가 잘리지 않게 */
+.room-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px;margin-top:8px}
+.room-card{gap:4px;padding:12px 14px}
+.room-card .room-card-dir{font-family:var(--pixel-ui);color:var(--accent-text);font-size:12px}
+.room-card b{font-family:var(--pixel-ui);font-size:16px;font-weight:700}
+.room-card span{color:var(--text-2);font-size:14px}
+
+/* ---------- AI 진화 체험판 정보창 (게임창 아래 → 사이트 스타일) ---------- */
+.evo-hud{
+  margin:16px auto 0;padding:14px 16px;background:var(--surface);
+  border:2px solid var(--line);box-shadow:4px 4px 0 var(--line);
+}
+.evo-head{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline;font-family:var(--pixel-ui);font-size:13px;color:var(--text-2)}
+.evo-head b{font-size:15px;color:var(--text)}
+.evo-status{margin-left:auto}
+.evo-ctrl{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.evo-ctrl button{padding:5px 12px;font-family:var(--pixel-ui);font-size:12px;border:2px solid var(--line);box-shadow:2px 2px 0 var(--accent);background:var(--surface)}
+.evo-ctrl button:disabled{opacity:.4;cursor:default;box-shadow:none}
+.evo-status.win{color:var(--accent-text)}
+.evo-status.lose{color:var(--text-3)}
+.evo-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px 28px;margin-top:12px}
+.evo-cols h4{display:flex;align-items:center;gap:8px;font-family:var(--pixel-ui);font-size:13px;font-weight:700;margin-bottom:6px}
+.evo-cols h4 small{margin-left:auto;font-weight:400;color:var(--text-3)}
+.evo-dot{width:8px;height:8px;border:2px solid var(--line)}
+.evo-dot.ally{background:var(--unit-ally)}
+.evo-dot.enemy{background:var(--unit-enemy)}
+.evo-ups{list-style:none;display:flex;flex-direction:column;gap:4px}
+.evo-ups li{display:grid;grid-template-columns:72px 44px 1fr;align-items:center;gap:8px;font-size:14px}
+.evo-name{font-family:var(--pixel-ui);font-size:12px}
+.evo-pips{display:flex;gap:3px}
+.evo-pips i{width:10px;height:8px;border:2px solid var(--line-soft)}
+.evo-pips i.on{background:var(--accent);border-color:var(--line)}
+.evo-desc{color:var(--text-2);font-size:13px}
+.evo-refund{margin-top:8px;padding:4px 10px;font-family:var(--pixel-ui);font-size:12px;border:2px solid var(--line);box-shadow:2px 2px 0 var(--accent)}
+.evo-help{margin-top:10px;font-size:13px;color:var(--text-3)}
+.evo-counter{font-family:var(--pixel-ui);font-size:13px;color:var(--accent-text)}
+.evo-counter-note{margin-top:6px;font-size:13px;color:var(--text-2)}
+
+/* 연락처: 누르면 메일 주소가 나타나는 버튼(스팸 수집 방지) */
+.reveal-mail{
+  font-family:var(--pixel-ui);font-size:13px;padding:2px 10px;
+  border:2px solid var(--line);box-shadow:2px 2px 0 var(--accent);background:var(--surface);
+}
+.reveal-mail:active{transform:translate(1px,1px);box-shadow:1px 1px 0 var(--accent)}
+
+/* ---------- 게임 다운로드 버튼 (게임 전시실 페이지 맨 위) ---------- */
+.dl{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:0 0 28px}
+.dl-btn{padding:12px 18px}
+.dl-meta{font-family:var(--pixel-ui);font-size:12px;color:var(--text-3)}
+.dl-note{font-size:13px;color:var(--accent-text)}
+
+/* ---------- 게임 기획 블록 (게임 전시실 페이지) ---------- */
+.design{margin-top:56px;padding-top:28px;border-top:2px dashed var(--line-soft)}
+.design-title{font-family:var(--pixel-ui);font-size:20px;font-weight:700}
+.design-title span{color:var(--accent)}
+.design-pitch{font-size:clamp(17px,2vw,20px);font-weight:600;margin:10px 0 22px;max-width:52ch}
+.design-spec{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));border:2px solid var(--line);background:var(--surface)}
+.design-spec div{padding:10px 14px;border-right:2px dashed var(--line-soft);border-bottom:2px dashed var(--line-soft);margin:0 -2px -2px 0}
+.design-spec dt{font-family:var(--pixel-ui);font-size:12px;color:var(--accent-text);margin-bottom:2px}
+.design-spec dd{font-size:15px}
+.design-sub{font-family:var(--pixel-ui);font-size:15px;font-weight:700;margin:32px 0 12px}
+.design-loop{list-style:none;display:flex;flex-wrap:wrap;align-items:center;gap:10px 0}
+.design-loop li{display:flex;align-items:center}
+.design-loop-step{display:flex;align-items:center;gap:8px;font-size:14px;padding:8px 12px;background:var(--surface);border:2px solid var(--line)}
+.design-loop-num{font-family:var(--pixel-ui);font-size:12px;color:var(--accent-text)}
+.design-loop-arrow{color:var(--accent);font-size:10px;padding:0 8px}
+.design-loop-back{font-family:var(--pixel-ui);font-size:12px;color:var(--text-3);padding:8px 12px;border:2px dashed var(--line-soft)}
+.design-points{display:grid;grid-template-columns:repeat(var(--cols,3),1fr);gap:20px}
+@media (max-width:960px){.design-points{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:600px){.design-points{grid-template-columns:1fr}}
+.design-point{display:flex;flex-direction:column;gap:6px;padding:14px 16px;background:var(--surface);border:2px solid var(--line);box-shadow:4px 4px 0 var(--line)}
+.design-point-num{font-family:var(--pixel-ui);font-size:12px;color:var(--accent-text)}
+.design-point b{font-family:var(--pixel-ui);font-size:15px;font-weight:700}
+.design-point p{font-size:14px;color:var(--text-2)}
+.design-plans{margin:0 0 0 1.1em;color:var(--text-2);max-width:68ch}
+.design-plans li{margin-bottom:6px}
+
+/* ---------- py.Factory 체험판 ---------- */
+/* 코딩창은 게임창 안 → 게임(도트) 스타일 */
+.coding-window{
+  position:absolute;top:8px;right:8px;bottom:8px;width:min(55%,400px);
+  display:flex;flex-direction:column;gap:6px;overflow:auto;
+  padding:8px 10px;background:color-mix(in srgb,var(--void) 94%,transparent);border:2px solid var(--wall-side);
+  font-size:12px;
+}
+.cw-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.cw-head b{font-weight:400;color:var(--brass)}
+.cw-close{color:var(--ink-dim);padding:0 4px}
+.cw-close:hover{color:var(--brass)}
+.cw-info{color:var(--ink-dim);display:flex;flex-direction:column;gap:2px;line-height:1.5}
+.cw-info code{font-family:'GalmuriMono11',monospace;color:var(--jade)}
+.cw-code{
+  flex:1;min-height:72px;resize:none;
+  font-family:'GalmuriMono11',monospace;font-size:13px;line-height:1.5;tab-size:4;
+  color:var(--ink);background:var(--void);border:1px solid var(--wall-side);padding:6px 8px;
+}
+.cw-code:focus{outline:2px solid var(--jade);outline-offset:-1px}
+.cw-actions{display:flex;gap:8px}
+.cw-actions button{padding:4px 10px;border:2px solid var(--wall-side);color:var(--ink-dim)}
+.cw-actions .cw-run{border-color:var(--brass);color:var(--brass)}
+.cw-actions button:hover{border-color:var(--brass);color:var(--brass)}
+.cw-result{line-height:1.5}
+.cw-result.ok{color:var(--jade)}
+.cw-result.err{color:var(--brass)}
+@media (max-width:640px){
+  .coding-window{position:static;width:auto;margin-top:8px;max-height:none}
+}
+
+/* 어시스턴트·자원 표시는 게임창 아래 페이지 쪽 → 사이트 스타일 */
+.pyf-hud{
+  display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between;
+  margin:16px auto 0;padding:14px 16px;
+  background:var(--surface);border:2px solid var(--line);box-shadow:4px 4px 0 var(--line);
+}
+.pyf-assist{display:flex;gap:12px;align-items:flex-start;flex:1 1 320px}
+.pyf-assist p{font-size:14px;line-height:1.65}
+.pyf-face{
+  flex:none;width:32px;height:26px;margin-top:2px;
+  display:flex;justify-content:center;gap:8px;padding-top:7px;
+  background:var(--jade);border:2px solid var(--text);
+}
+.pyf-face i{width:3px;height:6px;background:var(--text)}
+.pyf-stats{display:flex;gap:16px;align-items:center;font-family:var(--pixel-ui);font-size:13px;color:var(--text-2)}
+.pyf-stats b{font-weight:700;color:var(--text)}
+.pyf-stats button{padding:7px 14px;font-size:13px}
+
+/* ---------- 로그라이크 체험판 (게임창 안 → 게임 스타일) ---------- */
+.rl-overlay{
+  position:absolute;inset:0;z-index:2;overflow:auto;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  padding:10px;background:color-mix(in srgb,var(--void) 82%,transparent);text-align:center;font-size:12px;
+}
+.rl-overlay h3{font-size:16px;font-weight:400;color:var(--brass)}
+.rl-overlay h3.rl-clear{color:var(--jade);font-size:18px}
+/* 세로로 긴 카드를 가로로 나란히 */
+.rl-choices{display:flex;gap:10px;width:min(100%,760px);min-height:180px;max-height:340px;flex:0 1 auto}
+.rl-choice{
+  flex:1 1 0;min-width:0;
+  display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;
+  padding:12px 6px;border:2px solid var(--wall-side);background:var(--void-2);line-height:1.45;
+  transition:transform .12s, border-color .12s;
+}
+.rl-choice-num{
+  width:20px;height:20px;line-height:16px;font-size:11px;
+  border:2px solid var(--wall-side);color:var(--ink-dim);
+}
+.rl-choice b{font-weight:400;color:var(--ink);word-break:keep-all}
+.rl-choice-lv{color:var(--jade);font-size:11px}
+.rl-choice-desc{color:var(--ink-dim);font-size:11px;word-break:keep-all}
+.rl-choice.on{border-color:var(--brass);transform:translateY(-4px)}
+.rl-choice.on .rl-choice-num{border-color:var(--brass);color:var(--brass)}
+@media (max-width:640px){
+  .rl-choices{gap:4px;min-height:0}
+  .rl-choice{padding:6px 3px;gap:3px}
+  .rl-choice-num{display:none}
+}
+.rl-hint{color:var(--ink-dim);font-size:11px}
+/* 플레이 중 일시정지 버튼: HUD 점수 아래 오른쪽 */
+.rl-pause-btn{
+  position:absolute;z-index:2;top:9%;right:1.5%;
+  padding:2px 8px;font-size:11px;color:var(--ink-dim);
+  background:color-mix(in srgb,var(--void) 70%,transparent);border:2px solid var(--wall-side);
+}
+.rl-pause-btn:hover{color:var(--brass);border-color:var(--brass)}
+.rl-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.rl-actions button{padding:5px 12px;border:2px solid var(--brass);color:var(--brass);background:var(--void-2)}
+.rl-actions button:hover{background:color-mix(in srgb,var(--brass) 15%,transparent)}
+.rl-score{display:flex;flex-direction:column;gap:2px}
+.rl-score b{font-weight:400;font-size:18px;color:var(--ink)}
+.rl-score em{font-style:normal;color:var(--jade)}
+.rl-score span,.rl-items{color:var(--ink-dim);font-size:11px}
+
+/* ---------- 기획 자료실 ---------- */
+.doc-filters{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 22px}
+.doc-filters button{
+  padding:5px 12px;border:2px solid var(--line-soft);
+  font-family:var(--pixel-ui);font-size:13px;color:var(--text-2);background:var(--surface);
+}
+.doc-filters button:hover{border-color:var(--line)}
+.doc-filters button span{color:var(--text-3);margin-left:4px}
+.doc-filters button[aria-pressed="true"]{background:var(--text);border-color:var(--text);color:var(--bg)}
+.doc-filters button[aria-pressed="true"] span{color:var(--bg-2)}
+.doc-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:22px;margin-bottom:18px}
+.doc-card{gap:6px;padding:12px 14px}
+.doc-card b{font-family:var(--pixel-ui);font-size:15px;font-weight:700}
+.doc-meta{font-family:var(--pixel-ui);color:var(--accent-text);font-size:12px}
+.doc-summary{color:var(--text-2);font-size:14px}
+.doc-tags{display:flex;flex-wrap:wrap;gap:4px 10px;color:var(--text-3);font-size:12px}
+.doc-back{font-family:var(--pixel-ui);color:var(--text-2);font-size:13px;padding:4px 0;margin-bottom:14px}
+.doc-back:hover{color:var(--accent)}
+.doc-title{font-family:var(--pixel-ui);margin:4px 0 8px;font-size:24px;font-weight:700;line-height:1.35}
+.doc-reader .doc-summary{margin-bottom:8px}
+.doc-body{margin-top:24px;padding-top:20px;border-top:2px dashed var(--line-soft)}
+.doc-pdf{margin-top:20px;padding:10px 18px}
+.doc-reader>p,.doc-reader>.doc-tags{max-width:68ch}
+/* 공개 웹 문서(노션·구글 시트)를 페이지 안에 띄우는 창 */
+.doc-embed{margin-top:22px;border:2px solid var(--text);box-shadow:4px 4px 0 var(--line)}
+.doc-embed-bar{
+  display:flex;justify-content:space-between;align-items:center;gap:12px;
+  padding:8px 12px;border-bottom:2px solid var(--text);
+  font-family:var(--pixel-ui);font-size:12px;background:var(--bg-2);
+}
+.doc-embed-bar a{color:var(--accent-text);text-decoration:none}
+.doc-embed-bar a:hover{text-decoration:underline}
+.doc-embed-frame{position:relative;height:calc(100svh - 130px);min-height:480px;background:var(--bg)} /* 상단바·창 머리 빼고 화면 높이 가득 */
+.doc-embed-frame::before{ /* 문서가 뜨기 전 자리 안내 — 로드되면 iframe이 덮는다 */
+  content:"불러오는 중…";position:absolute;inset:0;display:grid;place-items:center;
+  font-family:var(--pixel-ui);font-size:13px;color:var(--text-3);
+}
+.doc-embed-frame iframe{position:relative;display:block;width:100%;height:100%;border:0}
+
+/* ---------- 모바일 조작 (게임창 안) ---------- */
+#touch{position:absolute;inset:0;touch-action:none}
+#stick{
+  position:absolute;width:104px;height:104px;border-radius:50%;
+  border:2px solid var(--wall-side);background:color-mix(in srgb,var(--void-2) 55%,transparent);
+  pointer-events:none;
+}
+#stick i{
+  position:absolute;left:50%;top:50%;width:40px;height:40px;margin:-20px 0 0 -20px;
+  border-radius:50%;background:var(--wall-top);
+}
+#btn-e{
+  position:absolute;right:18px;bottom:18px;width:66px;height:66px;border-radius:50%;
+  border:2px solid var(--brass-dark);background:color-mix(in srgb,var(--brass) 14%,transparent);color:var(--brass);
+}
+
+/* ---------- 모달 (전시물 패널 · 목록 뷰) ---------- */
+.sheet{
+  position:fixed;inset:0;z-index:20;
+  background:color-mix(in srgb,var(--text) 42%,transparent);
+  padding:24px 16px;overflow-y:auto;
+}
+.sheet-inner{
+  max-width:640px;margin:6vh auto 0;
+  background:var(--surface);border:2px solid var(--line);
+  padding:28px 28px 24px;box-shadow:8px 8px 0 var(--line);
+}
+.sheet h2{font-family:var(--pixel-ui);font-size:24px;font-weight:700;margin-bottom:4px}
+.sheet .lede{color:var(--text-2);margin-bottom:22px}
+.close{display:block;width:100%;margin-top:24px;padding:10px 16px}
+
+/* 목록 뷰 */
+.sheet.list .sheet-inner{max-width:680px}
+.room-link{
+  position:relative;display:flex;flex-direction:column;width:100%;text-align:left;
+  border-top:2px dashed var(--line-soft);padding:14px 2px 14px 24px;
+}
+.room-link:last-child{border-bottom:2px dashed var(--line-soft)}
+.room-link b{font-family:var(--pixel-ui);font-size:16px;font-weight:700}
+/* 고를 때만 왼쪽 여백에 ▶ — 제목·설명 줄은 그대로 */
+.room-link b::before{content:"▶";position:absolute;left:4px;color:var(--accent);opacity:0;transition:opacity .1s}
+.room-link span{color:var(--text-2);font-size:14px}
+.room-link:hover b::before,.room-link:focus-visible b::before{opacity:1}
+
+/* ---------- 소개 · 연락처 ---------- */
+.page-section{max-width:var(--page);margin:0 auto;padding:0 24px 88px}
+
+.site-footer{
+  max-width:var(--page);margin:0 auto;padding:20px 24px 48px;
+  display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  border-top:2px dashed var(--line);color:var(--text-3);font-family:var(--pixel-ui);font-size:12px;
+}
+
+@media (max-width:640px){
+  .site-header-inner,.hero,.game-section,.page-section,.site-footer{padding-left:16px;padding-right:16px}
+  .sheet-inner{padding:22px 18px 18px;margin-top:2vh;box-shadow:5px 5px 0 var(--line)}
+}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .caret{animation:none}
+  .rl-choice,.hero-cta,.btn-primary,.doc-pdf,.pyf-stats button,#to-list,.close,.room-card,.doc-card{transition:none}
+  .rl-choice.on,#to-list:hover,.close:hover,.room-card:hover,.doc-card:hover,
+  .hero-cta:active,#to-list:active,.close:active,.room-card:active,.doc-card:active{transform:none}
+}
