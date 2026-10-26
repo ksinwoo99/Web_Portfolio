@@ -224,7 +224,9 @@ function pixelText(px: DrawKit["px"], t: string, x: number, y: number, color: st
 /** 조명 위 층: 화면 머리글 · 승패 · 강화 버튼 이름과 단계 · 떠오르는 글자 */
 function drawTop({ ctx, px, PAL }: DrawKit) {
   const s = store.getState();
-  ctx.font = "10px Galmuri9, monospace";
+  // 이 방의 글자는 전부 작은 도트 글꼴(Galmuri7 8px) — 10px이면 버튼 이름이 벽까지 튀어나간다(사용자 요청, 2026-10-26)
+  const FONT = "8px Galmuri7, monospace";
+  ctx.font = FONT;
   ctx.textBaseline = "top";
 
   const text = (t: string, x: number, y: number, color: string, align: CanvasTextAlign = "left") => {
@@ -243,14 +245,12 @@ function drawTop({ ctx, px, PAL }: DrawKit) {
   px(SCREEN.x + 1, by - 1, SCREEN.w - 2, 32, "rgba(0,0,0,.5)");
   px(SCREEN.x + 1, by - 1, 2, 32, PAL.unitEnemy);              // 왼쪽 빨간 띠 = 적
   const order: UpKey[] = ["atk", "pen", "acc", "def", "hp", "eva"];
-  ctx.font = "8px Galmuri7, monospace";
   order.forEach((k, i) => {
     const x = SCREEN.x + 6 + (i % 3) * colW, y = by + 1 + Math.floor(i / 3) * 15, lv = s.enemy[k];
     ICONS[k].forEach((row, r) => [...row].forEach((ch, c) => { if (ch === "#") px(x + c, y + r, 1, 1, lv ? PAL.ink : PAL.wallSide); }));
     for (let j = 0; j < MAX_PER; j++) px(x + 8 + j * 4, y + 1, 3, 3, j < lv ? PAL.unitEnemy : PAL.wallSide);
     text(UPGRADES.find((u) => u.key === k)!.name, x, y + 6, lv ? PAL.inkDim : PAL.wallSide);
   });
-  ctx.font = "10px Galmuri9, monospace";
   if (s.phase === "cleared") {
     px(SCREEN.x, SCREEN.y + SCREEN.h / 2 - 14, SCREEN.w, 26, "rgba(0,0,0,.6)");
     text("모든 라운드 클리어!", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2 - 11, PAL.unitAlly, "center");
