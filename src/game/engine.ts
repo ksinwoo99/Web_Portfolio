@@ -6,7 +6,7 @@ import { readPalette } from "./palette";
 import { crate, drawHero, floorTile, plant, rug, wallLamp, wallShadows, wallTile, type Facing } from "./art";
 import { DECOR } from "./decor";
 import { createLighting, type Light } from "./lighting";
-import { ROOM_PLUGINS, type DrawKit } from "./plugins";
+import { ROOM_PLUGINS, type DrawKit, type LabelOpts } from "./plugins";
 import { isLocked, useGameStore } from "../store";
 
 const PLAYER_W = 12, PLAYER_H = 12; // 충돌 박스 (그림보다 작게)
@@ -99,6 +99,8 @@ export function startEngine(canvas: HTMLCanvasElement): () => void {
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const lighting = createLighting(PAL, reduceMotion);
   let frameLights: Light[] = [];
+  // 화면 해상도로 그리는 선명한 글자(DrawKit.label). 매 프레임 render가 채우고 present가 맨 위에 그린다
+  let labels: (Required<LabelOpts> & { t: string; x: number; y: number })[] = [];
   let frameBoost = 0;
   function present(now: number) {
     view.imageSmoothingEnabled = false; // 캔버스 크기를 바꾸면 초기화되므로 매번
@@ -106,6 +108,24 @@ export function startEngine(canvas: HTMLCanvasElement): () => void {
     lighting(view, canvas.width, canvas.height, frameLights, now, frameBoost);
     view.imageSmoothingEnabled = false;
     view.drawImage(hudBuf, 0, 0, canvas.width, canvas.height);
+    drawLabels();
+  }
+  function drawLabels() {
+    if (!labels.length) return;
+    const s = canvas.width / VW, sh = Math.max(1, Math.round(s * 0.6));
+    view.save();
+    view.textBaseline = "top";
+    for (const L of labels) {
+      view.globalAlpha = L.alpha;
+      view.textAlign = L.align;
+      view.font = `${Math.round(L.size * s)}px Galmuri11, "Pretendard Variable", sans-serif`;
+      const x = Math.round(L.x * s), y = Math.round(L.y * s);
+      view.fillStyle = PAL.void;
+      view.fillText(L.t, x + sh, y + sh); // 그림자
+      view.fillStyle = L.color;
+      view.fillText(L.t, x, y);
+    }
+    view.restore();
   }
 
   let room: RoomId = store.getState().room;
@@ -656,12 +676,14 @@ export function startEngine(canvas: HTMLCanvasElement): () => void {
     ctx.restore();
   }
 
-  const kit = (now: number): DrawKit => ({ ctx, PAL, px, now });
+  const label: DrawKit["label"] = (t, x, y, o = {}) =>
+    labels.push({ t, x, y, color: o.color ?? PAL.ink, align: o.align ?? "left", size: o.size ?? 8, alpha: o.alpha ?? 1 });
+  const kit = (now: number): DrawKit => ({ ctx, PAL, px, now, label });
   const hpx = (x: number, y: number, w: number, h: number, color: string) => {
     hud.fillStyle = color;
     hud.fillRect(x | 0, y | 0, w | 0, h | 0);
   };
-  const hudKit = (now: number): DrawKit => ({ ctx: hud, PAL, px: hpx, now });
+  const hudKit = (now: number): DrawKit => ({ ctx: hud, PAL, px: hpx, now, label });
 
   function drawMarker() {
     if (!marker) return;
@@ -701,6 +723,7 @@ export function startEngine(canvas: HTMLCanvasElement): () => void {
 
   function render(now: number) {
     hud.clearRect(0, 0, VW, VH);
+    labels = [];
     const tp = takeoverPlugin();
     if (tp?.render) {
       tp.render(kit(now));

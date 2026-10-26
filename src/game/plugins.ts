@@ -12,11 +12,18 @@ import { evolutionPlugin } from "./evolution/sim";
 
 export type Pt = { x: number; y: number };
 
+export type LabelOpts = { color?: string; align?: CanvasTextAlign; size?: number; alpha?: number };
+
 export type DrawKit = {
   ctx: CanvasRenderingContext2D;
   PAL: Palette;
   px: (x: number, y: number, w: number, h: number, color: string) => void;
   now: number;
+  /**
+   * 선명한 글자. 좌표·크기(size, 기본 8)는 가상 좌표(384×240)지만, 도트 버퍼가 아니라 화면 해상도로 맨 마지막(조명·HUD 위)에 그린다.
+   * 작은 글자를 도트 버퍼에 그리면 획이 뭉개져 읽기 어렵다(사용자 피드백, 2026-10-26)
+   */
+  label: (text: string, x: number, y: number, opts?: LabelOpts) => void;
 };
 
 export type RoomPlugin = {

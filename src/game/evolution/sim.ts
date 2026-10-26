@@ -222,20 +222,11 @@ function pixelText(px: DrawKit["px"], t: string, x: number, y: number, color: st
 }
 
 /** 조명 위 층: 화면 머리글 · 승패 · 강화 버튼 이름과 단계 · 떠오르는 글자 */
-function drawTop({ ctx, px, PAL }: DrawKit) {
+function drawTop({ ctx, px, PAL, label }: DrawKit) {
   const s = store.getState();
-  // 이 방의 글자는 전부 작은 도트 글꼴(Galmuri7 8px) — 10px이면 버튼 이름이 벽까지 튀어나간다(사용자 요청, 2026-10-26)
-  const FONT = "8px Galmuri7, monospace";
-  ctx.font = FONT;
-  ctx.textBaseline = "top";
-
-  const text = (t: string, x: number, y: number, color: string, align: CanvasTextAlign = "left") => {
-    ctx.textAlign = align;
-    ctx.fillStyle = PAL.void;
-    ctx.fillText(t, Math.round(x) + 1, Math.round(y) + 1);
-    ctx.fillStyle = color;
-    ctx.fillText(t, Math.round(x), Math.round(y));
-  };
+  // 이 방의 글자는 작게(벽까지 튀어나가지 않게), 하지만 도트 버퍼가 아니라 화면 해상도로 선명하게(label) — 사용자 피드백 2026-10-26
+  const text = (t: string, x: number, y: number, color: string, align: CanvasTextAlign = "left", size = 7.5, alpha = 1) =>
+    label(t, x, y, { color, align, size, alpha });
 
   text(`ROUND ${s.round}/${FINAL_ROUND}`, SCREEN.x + 3, SCREEN.y + 2, PAL.jade);
   text(`${s.alive.ally} : ${s.alive.enemy}`, SCREEN.x + SCREEN.w - 3, SCREEN.y + 2, PAL.ink, "right");
@@ -249,22 +240,22 @@ function drawTop({ ctx, px, PAL }: DrawKit) {
     const x = SCREEN.x + 6 + (i % 3) * colW, y = by + 1 + Math.floor(i / 3) * 15, lv = s.enemy[k];
     ICONS[k].forEach((row, r) => [...row].forEach((ch, c) => { if (ch === "#") px(x + c, y + r, 1, 1, lv ? PAL.ink : PAL.wallSide); }));
     for (let j = 0; j < MAX_PER; j++) px(x + 8 + j * 4, y + 1, 3, 3, j < lv ? PAL.unitEnemy : PAL.wallSide);
-    text(UPGRADES.find((u) => u.key === k)!.name, x, y + 6, lv ? PAL.inkDim : PAL.wallSide);
+    text(UPGRADES.find((u) => u.key === k)!.name, x, y + 6, lv ? PAL.ink : PAL.inkDim, "left", 7);
   });
   if (s.phase === "cleared") {
     px(SCREEN.x, SCREEN.y + SCREEN.h / 2 - 14, SCREEN.w, 26, "rgba(0,0,0,.6)");
-    text("모든 라운드 클리어!", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2 - 11, PAL.unitAlly, "center");
-    text("전체 초기화로 다시 도전", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2 + 1, PAL.inkDim, "center");
+    text("모든 라운드 클리어!", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2 - 11, PAL.unitAlly, "center", 9);
+    text("전체 초기화로 다시 도전", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2 + 1, PAL.inkDim, "center", 8);
   }
   if (s.phase === "ready") {
     px(SCREEN.x, SCREEN.y + SCREEN.h / 2 - 14, SCREEN.w, 26, "rgba(0,0,0,.55)");
-    text("전투 대기", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2 - 11, PAL.ink, "center");
-    text("▶ 전투 시작을 누르세요", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2 + 1, PAL.unitAlly, "center");
+    text("전투 대기", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2 - 11, PAL.ink, "center", 9);
+    text("▶ 전투 시작을 누르세요", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2 + 1, PAL.unitAlly, "center", 8);
   }
   if (s.result) {
     px(SCREEN.x, SCREEN.y + SCREEN.h / 2 - 12, SCREEN.w, 22, "rgba(0,0,0,.6)");
     text(s.result === "win" ? (s.round >= FINAL_ROUND ? "마지막 라운드 승리!" : "승리! 새로운 적") : "패배 — 강화를 바꿔 보세요", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2 - 7,
-      s.result === "win" ? PAL.jade : PAL.brass, "center");
+      s.result === "win" ? PAL.jade : PAL.brass, "center", 9);
   }
 
   for (const [id, key] of Object.entries(PAD_KEY)) {
@@ -281,11 +272,8 @@ function drawTop({ ctx, px, PAL }: DrawKit) {
   }
   ctx.globalAlpha = 1;
 
-  for (const f of floaters) {
-    ctx.globalAlpha = Math.max(0, 1 - f.t / 1.2);
-    text(f.text, f.x, f.y - f.t * 12, f.ok ? PAL.jade : PAL.brass, "center");
-  }
-  ctx.globalAlpha = 1;
+  for (const f of floaters)
+    text(f.text, f.x, f.y - f.t * 12, f.ok ? PAL.jade : PAL.brass, "center", 7.5, Math.max(0, 1 - f.t / 1.2));
 }
 
 // 조명: 살아 있는 유닛마다 제 색으로 은은하게
