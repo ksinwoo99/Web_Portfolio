@@ -1,4 +1,4 @@
-import { COUNTER_TEXT, FINAL_ROUND, MAX_PER, UPGRADES, allyLimit, total, useEvoStore, type Levels } from "../../game/evolution/store";
+import { COUNTER_TEXT, FINAL_ROUND, GROUPS, MAX_PER, UPGRADES, allyLimit, total, useEvoStore, type Levels } from "../../game/evolution/store";
 
 // AI 진화 체험판 정보창(게임창 아래): 내 강화 현황과 상성. 이번 적의 강화는 게임창 안 화면 위쪽에 띄운다(사용자 요청)
 export default function EvoHud() {
@@ -43,10 +43,10 @@ export default function EvoHud() {
         <section>
           <h4>상성</h4>
           {COUNTER_TEXT.map((t) => <p key={t} className="evo-counter">{t}</p>)}
-          <p className="evo-counter-note">▶ 쪽을 이깁니다. 적의 강화는 게임창 왼쪽 화면 위쪽(빨간 점 줄)에 나옵니다. 회피율은 확률로 공격을 피하고(MISS), 명중률은 상대 회피율만 깎습니다.</p>
+          <p className="evo-counter-note">▶ 쪽을 이깁니다 — 이기는 강화 1단계가 상대의 지는 강화 1.5단계를 지웁니다. 적의 강화는 게임창 왼쪽 화면 위쪽(빨간 띠)에 나옵니다. 회피율은 공격을 피하고(MISS), 스플래시는 맞힌 적 주변까지 때리지만 상대 회피율에 두 배로 빗나갑니다. 명중률은 약점 명중(피해 2배).</p>
         </section>
       </div>
-      <p className="evo-help">오른쪽 공간의 버튼을 클릭하거나 가까이 가서 E. 강화는 한 종류 최대 {MAX_PER}번, 합계는 늘 적 강화 수보다 1개 적게(마지막 {FINAL_ROUND}라운드는 2개 적게) — 고른 뒤 전투 시작. 이기면 강화를 돌려받고 새 적이 나옵니다.</p>
+      <p className="evo-help">오른쪽 공간의 버튼을 클릭하거나 가까이 가서 E. 강화는 한 종류 최대 {MAX_PER}번, 합계는 적과 같게(5 · 6 · 7번), 마지막 {FINAL_ROUND}라운드만 적 8번 대 아군 7번 — 고른 뒤 전투 시작. 이기면 강화를 돌려받고 새 적이 나옵니다.</p>
     </div>
   );
 }
@@ -54,7 +54,7 @@ export default function EvoHud() {
 function UpList({ levels }: { levels: Levels }) {
   return (
     <ul className="evo-ups">
-      {UPGRADES.map((u) => (
+      {GROUPS.flatMap((g) => g.keys).map((k) => UPGRADES.find((u) => u.key === k)!).map((u) => (
         <li key={u.key}>
           <span className="evo-name">{u.name}</span>
           <span className="evo-pips" aria-label={`${levels[u.key]}단계`}>

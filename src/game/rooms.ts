@@ -2,15 +2,12 @@ import { ArchivePicker } from "../content/panels/ArchiveShelf";
 import type { ComponentType } from "react";
 import { usePyfStore } from "./pyfactory/store";
 import { useRlStore } from "./roguelike/store";
-import { useEvoStore, type UpKey } from "./evolution/store";
+import { GROUPS, NAME as EVO_NAMES, useEvoStore, type UpKey } from "./evolution/store";
 
-const EVO_NAMES: Record<UpKey, string> = { atk: "공격력", pen: "방어관통", acc: "명중률", eva: "회피율", def: "방어력", hp: "체력" };
-
-// 강화 버튼 반원: 오른쪽 공간(7~14열) 가운데를 중심으로, 아래로 볼록한 U자에 6개를 같은 간격으로(왼쪽 → 오른쪽)
-const EVO_ARC: [UpKey, number, number][] = (["atk", "def", "pen", "hp", "acc", "eva"] as UpKey[]).map((k, i) => {
-  const a = Math.PI - (i * Math.PI) / 5, cx = 11, cy = 3.6, r = 3.2; // 타일 단위
-  return [k, Math.round((cx + r * Math.cos(a) - 0.5) * 4) / 4, Math.round((cy + r * Math.sin(a) - 0.5) * 4) / 4];
-});
+// 강화 버튼: 묶음마다 세로 한 줄(사용자 지정, 2026-10-27) — 공격(7.5열) · 명중(10.25열) · 방어(13열), 3.5행부터 2행 간격.
+// 9·12열과 7~8행은 비워 둬서 오른쪽 문(14열)에서 들어와도 모든 버튼 앞까지 걸어갈 수 있다
+const EVO_COLS: Record<string, number> = { 공격: 7.5, 명중: 10.25, 방어: 13 };
+const EVO_PADS: [UpKey, number, number][] = GROUPS.flatMap((g) => g.keys.map((k, i) => [k, EVO_COLS[g.name], 3.5 + i * 2] as [UpKey, number, number]));
 
 export type RoomId = "lobby" | "pyfactory" | "roguelike" | "evolution" | "archive";
 export type Dir = "up" | "down" | "left" | "right";
@@ -94,11 +91,11 @@ export const ROOMS: Record<RoomId, Room> = {
     tag: "오른쪽 버튼으로 아군(초록)을 강화하고 전투 시작을 누르세요. 왼쪽 화면에서 적(빨강)과 싸웁니다.",
     exits: { right: "lobby" },
     controlsExtra: [],
-    // 왼쪽 6칸은 화면 패널(maps.ts의 P), 오른쪽 8칸(7~14열)에 강화 버튼. 누르면 아군 강화(한 종류 3번, 합계는 적보다 1개 적게 — store.ts allyLimit)
+    // 왼쪽 6칸은 화면 패널(maps.ts의 P), 오른쪽 8칸(7~14열)에 강화 버튼. 누르면 아군 강화(한 종류 3번, 합계 한도는 store.ts allyLimit)
     objects: [
-      // 배치(사용자 지정, 2026-10-26): 맨 위 줄 전투 시작 · 정지 · 강화 초기화 → 그 아래 강화 6종을 반원(U자)으로 →
-      // 오른쪽 위 구석에 전체 초기화(맨 위 줄과 두 칸 띄워 실수로 누르지 않게). 반원은 상성 짝끼리 붙여 둔다
-      ...EVO_ARC.map(([k, col, row]) => ({
+      // 배치(사용자 지정, 2026-10-26~27): 맨 위 줄 전투 시작 · 정지 · 강화 초기화 → 그 아래 강화 7종을 묶음별 세로 줄로 →
+      // 오른쪽 위 구석에 전체 초기화(맨 위 줄과 두 칸 띄워 실수로 누르지 않게)
+      ...EVO_PADS.map(([k, col, row]) => ({
         id: `evo-${k}`, col, row, kind: "pad" as const,
         label: EVO_NAMES[k],
         action: `${EVO_NAMES[k]} 강화`,
