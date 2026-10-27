@@ -300,6 +300,9 @@ function drawTop({ ctx, px, PAL, label }: DrawKit) {
     for (let j = 0; j < MAX_PER; j++) px(x + 8 + j * 4, y + 1, 3, 3, j < lv ? PAL.unitEnemy : PAL.wallSide);
     text(NAME[k], x, y + 6, lv ? PAL.ink : PAL.inkDim, "left", 7);
   }));
+  // 표 오른쪽 위 빈자리(공격 줄은 2칸뿐): 적이 쓴 진화 포인트 수(사용자 요청, 2026-10-27)
+  text("진화 포인트", SCREEN.x + SCREEN.w - 3, by + 1, PAL.inkDim, "right", 6.5);
+  text(`${total(s.enemy)}`, SCREEN.x + SCREEN.w - 3, by + 9, PAL.unitEnemy, "right", 12);
   if (s.phase === "cleared") {
     px(SCREEN.x, SCREEN.y + SCREEN.h / 2 - 14, SCREEN.w, 26, "rgba(0,0,0,.6)");
     text("모든 라운드 클리어!", SCREEN.x + SCREEN.w / 2, SCREEN.y + SCREEN.h / 2 - 11, PAL.unitAlly, "center", 9);
