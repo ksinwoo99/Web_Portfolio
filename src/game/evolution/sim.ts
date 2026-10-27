@@ -6,7 +6,7 @@ import type { Light } from "../lighting";
 import { readPalette, type Palette } from "../palette";
 import {
   ACC_PER, ATK_PER, BASE_ATK, BASE_HP, DEF_PER, EVA_PER, GROUPS, HP_PER, MAX_PER, NAME, PEN_PER, SPL_EVA_MULT, SPL_PER,
-  UNITS_PER_SIDE, FINAL_ROUND, effLevels, useEvoStore, type Levels, type PadKey, type UpKey,
+  UNITS_PER_SIDE, FINAL_ROUND, allyLimit, effLevels, total, useEvoStore, type Levels, type PadKey, type UpKey,
 } from "./store";
 
 /*
@@ -278,7 +278,17 @@ function drawTop({ ctx, px, PAL, label }: DrawKit) {
     label(t, x, y, { color, align, size, alpha });
 
   text(`ROUND ${s.round}/${FINAL_ROUND}`, SCREEN.x + 3, SCREEN.y + 2, PAL.jade);
-  text(`${s.alive.ally} : ${s.alive.enemy}`, SCREEN.x + SCREEN.w - 3, SCREEN.y + 2, PAL.ink, "right");
+  // 남은 유닛 수: 아군 초록 : 적 빨강(사용자 요청, 2026-10-27)
+  const R = SCREEN.x + SCREEN.w - 3;
+  text(`${s.alive.enemy}`, R, SCREEN.y + 2, PAL.unitEnemy, "right");
+  text(":", R - 14, SCREEN.y + 2, PAL.inkDim, "center");
+  text(`${s.alive.ally}`, R - 18, SCREEN.y + 2, PAL.unitAlly, "right");
+
+  // 진화 포인트(강화 합계 한도): 공격 버튼 줄 위 빈 자리(왼쪽 벽)에 "남은 / 전체"와 칸(초록 = 남음). 없으면 헷갈린다는 사용자 요청(2026-10-27)
+  const limit = allyLimit(s.round), left = limit - total(s.ally), cx = 8.4 * TILE;
+  text("남은 진화 포인트", cx, 72, PAL.inkDim, "center", 7.5);
+  text(`${left} / ${limit}`, cx, 82, left ? PAL.jade : PAL.brass, "center", 11);
+  for (let i = 0; i < limit; i++) px(cx - limit * 3 + i * 6 + 1, 99, 4, 3, i < left ? PAL.jade : PAL.wallSide);
 
   // 적 강화 표(게임창 안 정보창): 아이콘 + 단계 칸 + 작은 한글 이름. 한 줄이 한 묶음(공격 / 방어 / 명중 — 버튼 배치와 같다)
   const by = SCREEN.y + 13, colW = (SCREEN.w - 6) / 3, rowH = 15, h = rowH * GROUPS.length + 2;

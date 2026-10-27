@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 /*
  * AI 진화 체험판(사용자 기획, 2026-10-26~27) — 화면에 드러나는 상태만.
- * 왼쪽 화면 패널에서 아군(초록) 10 vs 적(빨강) 10이 자동으로 싸우고, 플레이어는 오른쪽 공간의 강화 버튼으로 아군을 강화한다.
+ * 왼쪽 화면 패널에서 아군(초록) 15 vs 적(빨강) 15가 자동으로 싸우고, 플레이어는 오른쪽 공간의 강화 버튼으로 아군을 강화한다.
  * - 강화 7종: 공격(공격력·방어관통) / 방어(방어력·체력) / 명중(회피율·스플래시·명중률). 한 종류 최대 3번
  * - 라운드 4개: 강화 수 아군/적 5/5 · 6/6 · 7/7, 마지막만 7/8(사용자 지정, 2026-10-27)
  * - 전투는 플레이어가 "전투 시작"을 눌러야 시작. 한쪽이 전멸하면 결과를 보여 주고 대기로. 이기면 다른 랜덤 강화를 가진 적으로 교체
@@ -75,7 +75,7 @@ export const FINAL_ROUND = 4;
 const enemyBudget = (round: number) => [5, 6, 7, 8][Math.min(round, FINAL_ROUND) - 1];
 /** 아군 강화 합계 한도: 적과 같게, 마지막 라운드만 적보다 1개 적게 */
 export const allyLimit = (round: number) => [5, 6, 7, 7][Math.min(round, FINAL_ROUND) - 1];
-export const UNITS_PER_SIDE = 10;
+export const UNITS_PER_SIDE = 15; // 사용자 지정(2026-10-27, 처음엔 10)
 
 const ZERO: Levels = { atk: 0, pen: 0, def: 0, hp: 0, eva: 0, spl: 0, acc: 0 };
 export const total = (l: Levels) => (Object.values(l) as number[]).reduce((a, b) => a + b, 0);
@@ -138,7 +138,7 @@ export const useEvoStore = create<EvoState>()((set, get) => ({
     const s = get(), name = NAME[k];
     const fail = s.phase === "cleared" ? "모든 라운드 클리어"
       : s.ally[k] >= MAX_PER ? `${name}은 최대 ${MAX_PER}번`
-      : total(s.ally) >= allyLimit(s.round) ? `이번 라운드는 ${allyLimit(s.round)}번까지` : "";
+      : total(s.ally) >= allyLimit(s.round) ? "진화 포인트가 없어요" : "";
     if (fail) { set({ press: { seq: s.press.seq + 1, key: k, msg: fail, ok: false } }); return; }
     set({ ally: { ...s.ally, [k]: s.ally[k] + 1 }, press: { seq: s.press.seq + 1, key: k, msg: `+${name}`, ok: true } });
   },

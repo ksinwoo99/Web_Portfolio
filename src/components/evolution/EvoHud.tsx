@@ -35,7 +35,7 @@ export default function EvoHud() {
         <section>
           <h4>
             <i className="evo-dot ally" aria-hidden="true" />아군 강화
-            <small>남은 강화 {limit - total(ally)}/{limit}</small>
+            <small>남은 진화 포인트 {limit - total(ally)}/{limit}</small>
           </h4>
           <UpList levels={ally} />
           {total(ally) > 0 && <button className="evo-refund" onClick={refund}>강화 초기화</button>}
