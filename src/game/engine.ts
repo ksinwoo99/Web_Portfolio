@@ -188,7 +188,8 @@ export function startEngine(canvas: HTMLCanvasElement): () => void {
     }
     if (k === "shift") { if (!e.repeat) startDash(); return; }
     if (k === "escape") { store.getState().closeSheets(); return; }
-    if (k === "e") interact();
+    // E로 연 창(py.Factory 코딩창)이 같은 키 입력 중에 입력칸에 포커스를 가져가면 "e"가 그대로 써진다 — 기본 동작을 막는다
+    if (k === "e") { interact(); e.preventDefault(); }
     if (k === "q") store.getState().interactAlt();
     if (k === " " && !isLocked(store.getState())) { interact(); e.preventDefault(); }
     keys[k] = true;
