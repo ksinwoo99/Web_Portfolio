@@ -4,7 +4,7 @@ import { create } from "zustand";
  * AI 진화 체험판(사용자 기획, 2026-10-26~27) — 화면에 드러나는 상태만.
  * 왼쪽 화면 패널에서 아군(초록) 15 vs 적(빨강) 15가 자동으로 싸우고, 플레이어는 오른쪽 공간의 강화 버튼으로 아군을 강화한다.
  * - 강화 7종: 공격(공격력·방어관통) / 방어(방어력·체력) / 명중(회피율·스플래시·명중률). 한 종류 최대 3번
- * - 라운드 4개: 진화 포인트(강화 수) 아군/적 5/6 · 6/7 · 7/8 · 마지막 7/9(사용자 지정, 2026-10-27)
+ * - 라운드 4개: 진화 포인트(강화 수) 아군/적 5/6 · 6/7 · 7/8 · 마지막 8/10(사용자 지정, 2026-10-27)
  * - 전투는 플레이어가 "전투 시작"을 눌러야 시작. 한쪽이 전멸하면 결과를 보여 주고 대기로. 이기면 다른 랜덤 강화를 가진 적으로 교체
  * 정해지지 않았던 부분(웹에서 정함 — 사용자 확인됨 2026-10-26): 이기면 아군 강화를 돌려받아 새 적에 맞춰 다시 짠다,
  * 지면 같은 적과 강화 그대로 다시 싸운다, 강화 초기화 버튼으로 언제든 강화를 돌려받을 수 있다.
@@ -70,11 +70,11 @@ export function effLevels(me: Levels, op: Levels): Levels {
 /** 정보창·방 소개에 쓰는 상성 */
 export const COUNTER_TEXT = ["방어력 ▶ 공격력 ▶ 체력 ▶ 방어관통 ▶ 방어력", "회피율 ▶ 스플래시 ▶ 명중률 ▶ 회피율"];
 export const MAX_PER = 3;
-/** 마지막 라운드(사용자 지정, 2026-10-27). 강화 수 아군/적 5/6 · 6/7 · 7/8 · 7/9 */
+/** 마지막 라운드(사용자 지정, 2026-10-27). 강화 수 아군/적 5/6 · 6/7 · 7/8 · 8/10 */
 export const FINAL_ROUND = 4;
-const enemyBudget = (round: number) => [6, 7, 8, 9][Math.min(round, FINAL_ROUND) - 1];
+const enemyBudget = (round: number) => [6, 7, 8, 10][Math.min(round, FINAL_ROUND) - 1];
 /** 아군 진화 포인트(강화 합계 한도): 적보다 1개 적게, 마지막 라운드만 2개 적게 */
-export const allyLimit = (round: number) => [5, 6, 7, 7][Math.min(round, FINAL_ROUND) - 1];
+export const allyLimit = (round: number) => [5, 6, 7, 8][Math.min(round, FINAL_ROUND) - 1];
 export const UNITS_PER_SIDE = 15; // 사용자 지정(2026-10-27, 처음엔 10)
 
 const ZERO: Levels = { atk: 0, pen: 0, def: 0, hp: 0, eva: 0, spl: 0, acc: 0 };
