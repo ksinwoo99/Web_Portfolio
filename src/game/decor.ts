@@ -26,7 +26,6 @@ export const DECOR: Record<RoomId, Decor[]> = {
   roguelike: [{ kind: "rug", col: 5.5, row: 3.5, w: 5, h: 3 }, ...corners("plant"), ...lamps],
   // 왼쪽은 화면 패널이라 오른쪽 공간에만
   evolution: [
-    { kind: "plant", col: 14, row: 8 }, // 오른쪽 위 구석은 전체 초기화 버튼 자리
     { kind: "lamp", col: 9, row: 0 }, { kind: "lamp", col: 13, row: 0 },
   ],
   archive: [{ kind: "rug", col: 5, row: 3.5, w: 6, h: 3 }, ...corners("plant"), ...lamps],

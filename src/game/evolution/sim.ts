@@ -5,7 +5,7 @@ import type { DrawKit, RoomPlugin } from "../plugins";
 import type { Light } from "../lighting";
 import { readPalette, type Palette } from "../palette";
 import {
-  ACC_PER, ATK_PER, BASE_ATK, BASE_HP, DEF_PER, EVA_PER, GROUPS, HP_PER, MAX_PER, NAME, PEN_PER, SPL_EVA_MULT, SPL_PER, SPL_R,
+  ACC_PER, ATK_PER, BASE_ATK, BASE_HP, DEF_PER, EVA_PER, GROUPS, HP_PER, MAX_PER, NAME, PEN_PER, SPL_EVA_MULT, SPL_PER,
   UNITS_PER_SIDE, FINAL_ROUND, effLevels, useEvoStore, type Levels, type PadKey, type UpKey,
 } from "./store";
 
@@ -14,7 +14,7 @@ import {
  * 점 하나가 유닛 하나. 가장 가까운 적에게 다가가 사거리 안이면 공격한다.
  * 양쪽 강화는 먼저 상성으로 깎고(store `effLevels` — 이기는 강화 1단계가 지는 강화 1.5단계를 지운다), 남은 단계로:
  * 피해 = (기본 공격력 + 공격력 + 관통 피해) × (1 − 상대 방어력), 명중률만큼 약점 명중(2배), 상대 회피율만큼 빗나감(MISS),
- * 맞히면 주변 적에게 스플래시(상대 회피율의 2배 확률로 빗나감).
+ * 맞히면 그 적에게서 가장 가까운 다른 적 1명에게 스플래시(상대 회피율의 2배 확률로 빗나감).
  */
 
 const store = useEvoStore;
@@ -39,7 +39,7 @@ type Unit = {
 type Spark = { x: number; y: number; vx: number; vy: number; t: number; team: 0 | 1 };
 type Floater = { x: number; y: number; t: number; text: string; ok: boolean };
 type Miss = { x: number; y: number; t: number; team: 0 | 1 };
-type Blast = { x: number; y: number; t: number; team: 0 | 1 }; // 스플래시 고리(때린 쪽 색)
+type Blast = { x: number; y: number; x2: number; y2: number; t: number; team: 0 | 1 }; // 스플래시 이어지는 선(때린 쪽 색)
 
 let units: Unit[] = [];
 let sparks: Spark[] = [];
@@ -169,13 +169,18 @@ function update(dt: number) {
       } else {
         const d = me.dmg * them.taken * (Math.random() < me.crit ? 2 : 1); // 명중률: 약점 명중이면 2배
         damage(tgt, d);
-        // 스플래시: 맞힌 적 주변의 다른 적에게 피해 일부. 상대 회피율의 2배 확률로 빗나간다
+        // 스플래시: 맞힌 적에게서 가장 가까운 다른 적 1명에게 피해 일부. 상대 회피율의 2배 확률로 빗나간다
         if (me.spl > 0) {
-          blasts.push({ x: tgt.x, y: tgt.y, t: 0, team: u.team });
+          let next: Unit | null = null, nd = Infinity;
           for (const o of units) {
-            if (o === tgt || o.team !== tgt.team || o.hp <= 0 || Math.hypot(o.x - tgt.x, o.y - tgt.y) > SPL_R) continue;
-            if (Math.random() < them.splEva) misses.push({ x: o.x, y: o.y - 4, t: 0, team: o.team });
-            else damage(o, d * me.spl);
+            if (o === tgt || o.team !== tgt.team || o.hp <= 0) continue;
+            const dd = Math.hypot(o.x - tgt.x, o.y - tgt.y);
+            if (dd < nd) { nd = dd; next = o; }
+          }
+          if (next) {
+            blasts.push({ x: tgt.x, y: tgt.y, x2: next.x, y2: next.y, t: 0, team: u.team });
+            if (Math.random() < them.splEva) misses.push({ x: next.x, y: next.y - 4, t: 0, team: next.team });
+            else damage(next, d * me.spl);
           }
         }
       }
@@ -235,10 +240,10 @@ function draw({ px, PAL }: DrawKit) {
     if (u.hp < u.maxHp) px(x - 2, y - 4, Math.max(1, Math.round((5 * u.hp) / u.maxHp)), 1, team(u.team));
   }
   for (const p of sparks) px(p.x, p.y, 1, 1, team(p.team));
-  // 스플래시 고리: 맞힌 자리에서 SPL_R까지 퍼지는 점 8개
+  // 스플래시: 맞힌 적 → 다음 적으로 튀는 점선
   for (const b of blasts) {
-    const r = 3 + (SPL_R - 3) * (b.t / 0.25);
-    for (let i = 0; i < 8; i++) px(b.x + Math.cos((i * Math.PI) / 4) * r, b.y + Math.sin((i * Math.PI) / 4) * r, 1, 1, team(b.team));
+    const n = Math.ceil(Math.hypot(b.x2 - b.x, b.y2 - b.y));
+    for (let i = 1; i < n; i += 2) px(b.x + ((b.x2 - b.x) * i) / n, b.y + ((b.y2 - b.y) * i) / n, 1, 1, team(b.team));
   }
 
   // 오른쪽 공간: 강화 버튼 화면의 아이콘
@@ -301,11 +306,6 @@ function drawTop({ ctx, px, PAL, label }: DrawKit) {
       s.result === "win" ? PAL.jade : PAL.brass, "center", 9);
   }
 
-  // 강화 버튼 묶음 이름: 각 묶음 맨 위 버튼 위에
-  for (const g of GROUPS) {
-    const o = OBJECTS_BY_ID[`evo-${g.keys[0]}`];
-    text(g.name, (o.col + 0.5) * TILE, o.row * TILE - 17, PAL.brass, "center", 8);
-  }
   for (const [id, key] of Object.entries(PAD_KEY)) {
     const o = OBJECTS_BY_ID[id], cx = (o.col + 0.5) * TILE, y = o.row * TILE;
     text(o.label, cx, y + TILE + 1, PAL.ink, "center");

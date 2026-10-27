@@ -34,8 +34,9 @@ export const PEN_PER = 6;       // 관통 피해 +6
 export const DEF_PER = 0.15;    // 받는 피해 −15%(최소 25%까지)
 export const HP_PER = 30;       // 체력 +30
 export const EVA_PER = 0.15;    // 공격 15% 회피(최대 90%)
-export const SPL_PER = 0.25;    // 맞힌 적 주변(SPL_R)의 다른 적에게 피해의 25%
-export const SPL_R = 10;
+// 맞힌 적에게서 가장 가까운 다른 적 1명에게 피해의 30% 추가 공격(사용자 지정, 2026-10-27 — 처음엔 반경 안 전부라 몰려 있으면 너무 셌다).
+// 30%면 같은 단계 공격력과 맞먹는다(계산 1.0배)
+export const SPL_PER = 0.3;
 export const SPL_EVA_MULT = 2;  // 스플래시는 회피율에 더 크게 영향받는다 — 주변 피해는 상대 회피율의 2배 확률로 빗나감(사용자 지정)
 export const ACC_PER = 0.25;    // 25% 확률로 약점 명중(피해 2배)
 
@@ -45,7 +46,7 @@ export const UPGRADES: { key: UpKey; name: string; group: "공격" | "방어" | 
   { key: "def", name: "방어력", group: "방어", desc: (l) => `받는 피해 −${Math.round(DEF_PER * l * 100)}%` },
   { key: "hp", name: "체력", group: "방어", desc: (l) => `체력 +${HP_PER * l}` },
   { key: "eva", name: "회피율", group: "명중", desc: (l) => `공격 ${Math.round(EVA_PER * l * 100)}% 회피` },
-  { key: "spl", name: "스플래시", group: "명중", desc: (l) => `주변 적에게 피해 ${Math.round(SPL_PER * l * 100)}%` },
+  { key: "spl", name: "스플래시", group: "명중", desc: (l) => `가장 가까운 다른 적 1명에게 피해 ${Math.round(SPL_PER * l * 100)}%` },
   { key: "acc", name: "명중률", group: "명중", desc: (l) => `${Math.round(ACC_PER * l * 100)}% 확률 약점 명중(피해 2배)` },
 ];
 /** 버튼·표·정보창 묶음(사용자 지정, 2026-10-27): 공격 / 방어 / 명중 */

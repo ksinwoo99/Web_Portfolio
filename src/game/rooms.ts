@@ -4,10 +4,12 @@ import { usePyfStore } from "./pyfactory/store";
 import { useRlStore } from "./roguelike/store";
 import { GROUPS, NAME as EVO_NAMES, useEvoStore, type UpKey } from "./evolution/store";
 
-// 강화 버튼: 묶음마다 세로 한 줄(사용자 지정, 2026-10-27) — 공격(7.5열) · 명중(10.25열) · 방어(13열), 3.5행부터 2행 간격.
-// 9·12열과 7~8행은 비워 둬서 오른쪽 문(14열)에서 들어와도 모든 버튼 앞까지 걸어갈 수 있다
-const EVO_COLS: Record<string, number> = { 공격: 7.5, 명중: 10.25, 방어: 13 };
-const EVO_PADS: [UpKey, number, number][] = GROUPS.flatMap((g) => g.keys.map((k, i) => [k, EVO_COLS[g.name], 3.5 + i * 2] as [UpKey, number, number]));
+// 강화 버튼: 묶음마다 세로 한 줄(사용자 지정, 2026-10-27) — 공격은 왼쪽 벽 아래(7열), 방어는 오른쪽 벽 아래(14열),
+// 명중은 가운데(10.5열). 위에서부터 2행 간격으로, 마지막 버튼이 7.5행(이름표가 아래 벽에 걸리지 않는 가장 아래)에 오게.
+// 8~9열과 12~13열은 비워 둬서 오른쪽 문에서 들어와도 모든 버튼 앞까지 걸어갈 수 있다
+const EVO_COLS: Record<string, number> = { 공격: 7, 명중: 10.5, 방어: 14 };
+const EVO_PADS: [UpKey, number, number][] = GROUPS.flatMap((g) =>
+  g.keys.map((k, i) => [k, EVO_COLS[g.name], 7.5 - (g.keys.length - 1 - i) * 2] as [UpKey, number, number]));
 
 export type RoomId = "lobby" | "pyfactory" | "roguelike" | "evolution" | "archive";
 export type Dir = "up" | "down" | "left" | "right";
