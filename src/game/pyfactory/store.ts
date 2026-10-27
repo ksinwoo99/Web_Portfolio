@@ -135,10 +135,10 @@ export function assistantLine(s: PyfState): string {
   const { miner, productor } = s.machines;
   if (s.sold > 0)
     return "첫 수익이에요, 축하합니다! 실제 게임에서는 조건문·반복문·수송 벨트로 이 과정을 전부 자동화해 나갑니다.";
-  if (s.productDrops > 0) return "상품이 나왔어요! 마우스로 직접 클릭해서 판매해 보세요.";
+  if (s.productDrops > 0) return "상품이 나왔어요! 클릭하거나, 가까이 가서 E를 눌러 판매해 보세요.";
   if (productor.status === "waiting") return `자원이 모자라요. 가공기는 일반 자원 ${PRODUCT_COST}개가 모일 때까지 기다립니다. 채굴기를 다시 돌려 주세요.`;
   if (productor.status === "working") return `가공기가 자원 ${PRODUCT_COST}개를 가져가서 상품을 만드는 중이에요.`;
-  if (s.resDrops > 0) return "채굴기가 자원을 캐냈어요! 떨어진 자원을 마우스로 직접 클릭해서 획득하세요.";
+  if (s.resDrops > 0) return "채굴기가 자원을 캐냈어요! 떨어진 자원을 클릭하거나, 가까이 가서 E를 눌러 획득하세요.";
   if (miner.status === "working") return "채굴기가 코드대로 작동 중이에요. 잠시 기다려 볼까요?";
   if (s.res >= PRODUCT_COST || productor.valid)
     return "자원이 충분해요! 이번엔 가공기를 열어 producting(Common, 'A')를 적고 실행(F5)해 보세요.";

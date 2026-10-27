@@ -37,6 +37,10 @@ export type RoomPlugin = {
   click?(p: Pt): boolean;
   /** 우클릭. 오브젝트 위면 그 id */
   secondary?(objectId: string | null, p: Pt): void;
+  /** E·Space·터치 E(허브). 플레이어 위치를 받아 처리했으면 true — 엔진은 오브젝트 상호작용을 건너뛴다 */
+  interact?(player: Pt): boolean;
+  /** 지금 E를 누르면 플러그인이 할 일(조작 배지 E 설명). 없으면 null */
+  hint?(player: Pt): string | null;
   /** 마우스 커서를 손가락 모양으로 바꿀 곳인지 */
   hot?(p: Pt): boolean;
   /** 이 방의 추가 광원(방 좌표). 넘겨받은 동안엔 화면 좌표 */

@@ -188,12 +188,18 @@ export function startEngine(canvas: HTMLCanvasElement): () => void {
     }
     if (k === "shift") { if (!e.repeat) startDash(); return; }
     if (k === "escape") { store.getState().closeSheets(); return; }
-    if (k === "e") store.getState().interact();
+    if (k === "e") interact();
     if (k === "q") store.getState().interactAlt();
-    if (k === " " && !isLocked(store.getState())) { store.getState().interact(); e.preventDefault(); }
+    if (k === " " && !isLocked(store.getState())) { interact(); e.preventDefault(); }
     keys[k] = true;
     if (k.startsWith("arrow")) e.preventDefault();
   };
+  // E·Space·터치 E: 방 플러그인이 먼저(py.Factory 떨어진 자원 줍기 등), 아니면 가까운 오브젝트
+  function interact() {
+    if (pan || isLocked(store.getState())) return;
+    if (ROOM_PLUGINS[room]?.interact?.({ x: player.x, y: player.y })) return;
+    store.getState().interact();
+  }
   const onKeyUp = (e: KeyboardEvent) => { keys[e.key.toLowerCase()] = false; };
   addEventListener("keydown", onKeyDown);
   addEventListener("keyup", onKeyUp);
@@ -388,7 +394,7 @@ export function startEngine(canvas: HTMLCanvasElement): () => void {
     const tp = takeoverPlugin();
     for (; actions.pending > 0; actions.pending--) {
       if (tp) tp.action?.();
-      else store.getState().interact();
+      else interact();
     }
     if (tp) { player.moving = false; path = []; marker = null; return; }
     if (isLocked(store.getState())) { player.moving = false; path = []; return; }
@@ -459,6 +465,7 @@ export function startEngine(canvas: HTMLCanvasElement): () => void {
     }
     activeObject = found;
     store.getState().setNearObject(found ? found.id : null);
+    store.getState().setNearHint(ROOM_PLUGINS[room]?.hint?.({ x: player.x, y: player.y }) ?? null);
   }
 
   /** 문을 거치지 않고 나타날 때(새로고침·목록 뷰). 방 중앙이 전시물에 막혀 있으면 첫 문 앞에 선다. */

@@ -20,12 +20,13 @@ const ROGUELIKE_CONTROLS: ControlBadge[] = [
 export default function ControlsPanel() {
   const room = useGameStore((s) => s.room);
   const nearId = useGameStore((s) => s.nearObjectId);
+  const nearHint = useGameStore((s) => s.nearHint);
   const rlPlaying = useRlStore((s) => s.phase !== "idle");
   const near = nearId ? OBJECTS_BY_ID[nearId] : null;
 
   const badges: ControlBadge[] = room === "roguelike" && rlPlaying ? ROGUELIKE_CONTROLS : [
     ...BASE_CONTROLS,
-    { key: "E", label: near ? near.action ?? `${near.label} 살펴보기` : "상호작용" },
+    { key: "E", label: nearHint ?? (near ? near.action ?? `${near.label} 살펴보기` : "상호작용") },
     { key: "ESC", label: "닫기" },
     // 방별 배지. 가까운 오브젝트에 Q 동작이 있으면 그 설명으로 바꾼다
     ...ROOMS[room].controlsExtra.map((b) => (b.key === "Q" && near?.altAction ? { ...b, label: near.altAction } : b)),

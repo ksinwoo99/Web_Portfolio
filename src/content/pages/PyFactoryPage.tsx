@@ -45,8 +45,8 @@ export default function PyFactoryPage() {
         <h3>체험 방법</h3>
         <ul>
           <li>채굴기를 클릭하거나 가까이 가서 E → 코딩창에 <code>mining(Common)</code> 입력 → 실행(F5)</li>
-          <li>떨어진 자원을 클릭해서 수집. 반복문이 없어서 1회 후 멈추면 우클릭이나 F5로 재가동</li>
-          <li>자원 100개가 모이면 가공기에 <code>producting(Common, 'A')</code> → 상품을 클릭해서 판매</li>
+          <li>떨어진 자원을 클릭하거나 가까이 가서 E로 수집. 반복문이 없어서 1회 후 멈추면 우클릭이나 F5로 재가동</li>
+          <li>자원 100개가 모이면 가공기에 <code>producting(Common, 'A')</code> → 상품을 클릭하거나 E로 판매</li>
         </ul>
         <p className="note">실제 게임과 연동하지 않고 웹으로 다시 구현한 간소화판입니다.
         조건문·반복문·수송 벨트·창고 등은 실제 게임에서 이어집니다.</p>

@@ -16,6 +16,7 @@ import {
 const MACHINE_OBJECT: Record<MachineId, string> = { miner: "pyfactory-miner", productor: "pyfactory-productor" };
 const POP_TIME = 0.45;
 const PICK_RADIUS = 10;
+const E_RADIUS = 22; // E로 주울 수 있는 거리(플레이어 중심에서) — 사용자 요청(2026-10-27): 클릭 말고 E로도 획득·판매
 
 type Drop = { kind: "res" | "product"; x: number; y: number; fromY: number; t: number };
 type Floater = { text: string; x: number; y: number; t: number; color: "jade" | "brass" | "inkDim" };
@@ -51,6 +52,24 @@ function dropAt(p: Pt) {
     if (d.t >= POP_TIME && Math.hypot(p.x - d.x, p.y - d.y) < PICK_RADIUS) return i;
   }
   return -1;
+}
+
+/** 플레이어 가까이(E_RADIUS)에서 가장 가까운, 다 떨어진 아이템 */
+function dropNear(p: Pt) {
+  let best = -1, bd = E_RADIUS;
+  drops.forEach((d, i) => {
+    const dd = Math.hypot(p.x - d.x, p.y - d.y);
+    if (d.t >= POP_TIME && dd < bd) { bd = dd; best = i; }
+  });
+  return best;
+}
+
+function collect(i: number) {
+  const d = drops[i];
+  drops.splice(i, 1);
+  store.getState().dropCollected(d.kind);
+  if (d.kind === "res") floatText(`+${RES_PER_DROP} 자원`, d.x, d.y - 8, "jade");
+  else floatText(`+${PRODUCT_PRICE} G`, d.x, d.y - 8, "brass");
 }
 
 function update(dt: number) {
@@ -98,12 +117,20 @@ function update(dt: number) {
 function click(p: Pt) {
   const i = dropAt(p);
   if (i < 0) return false;
-  const d = drops[i];
-  drops.splice(i, 1);
-  store.getState().dropCollected(d.kind);
-  if (d.kind === "res") floatText(`+${RES_PER_DROP} 자원`, d.x, d.y - 8, "jade");
-  else floatText(`+${PRODUCT_PRICE} G`, d.x, d.y - 8, "brass");
+  collect(i);
   return true;
+}
+
+// E: 가까이 떨어진 자원·상품이 있으면 기계보다 먼저 줍는다(기계 바로 아래에 떨어지므로)
+function interact(p: Pt) {
+  const i = dropNear(p);
+  if (i < 0) return false;
+  collect(i);
+  return true;
+}
+function hint(p: Pt) {
+  const i = dropNear(p);
+  return i < 0 ? null : drops[i].kind === "res" ? `자원 줍기 (+${RES_PER_DROP})` : `상품 판매 (+${PRODUCT_PRICE} G)`;
 }
 
 function secondary(objectId: string | null) {
@@ -160,7 +187,17 @@ function draw({ px, PAL, ctx, now }: DrawKit) {
   }
 }
 
-function drawTop({ ctx, PAL }: DrawKit) {
+function drawTop({ ctx, PAL, px, label }: DrawKit) {
+  // 게임창 왼쪽 위: 일반 자원 · 골드(사용자 요청, 2026-10-27). 글자는 화면 해상도(label)로 선명하게
+  const s = store.getState();
+  px(4, 4, 74, 23, "rgba(0,0,0,.55)");
+  px(8, 8, 5, 4, PAL.inkDim); px(9, 8, 2, 1, PAL.ink);   // 자원 덩어리
+  px(8, 18, 5, 5, PAL.brass); px(9, 19, 1, 2, PAL.ink); // 동전
+  label("일반 자원", 16, 6.5, { color: PAL.inkDim, size: 7 });
+  label(`${s.res}`, 74, 6, { color: PAL.ink, align: "right", size: 8 });
+  label("골드", 16, 16.5, { color: PAL.inkDim, size: 7 });
+  label(`${s.gold} G`, 74, 16, { color: PAL.brass, align: "right", size: 8 });
+
   ctx.font = "10px Galmuri9, monospace";
   ctx.textAlign = "center";
   ctx.textBaseline = "bottom";
@@ -195,5 +232,7 @@ export const pyfactoryPlugin: RoomPlugin = {
   drawTop,
   click,
   secondary,
+  interact,
+  hint,
   hot: (p) => dropAt(p) >= 0,
 };

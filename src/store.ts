@@ -17,11 +17,14 @@ type GameState = {
   // 모두 이 방향으로 "카메라가 이동하는" 연출을 한다. 목록 뷰로 먼 방에 가면 null.
   moveDir: Dir | null;
   nearObjectId: string | null;
+  /** 방 플러그인이 E로 할 일(예: py.Factory 자원 줍기). 있으면 조작 배지 E 설명이 이걸로 바뀐다 */
+  nearHint: string | null;
   openObjectId: string | null;
   listOpen: boolean;
 
   enterRoom: (room: RoomId) => void;
   setNearObject: (id: string | null) => void;
+  setNearHint: (hint: string | null) => void;
   interact: () => void;
   /** Q: 가까운 오브젝트의 보조 동작(onAlt — 예: AI 진화 방 강화 1 빼기) */
   interactAlt: () => void;
@@ -37,16 +40,20 @@ export const useGameStore = create<GameState>()((set, get) => ({
   room: roomFromHash(location.hash) ?? "lobby",
   moveDir: null,
   nearObjectId: null,
+  nearHint: null,
   openObjectId: null,
   listOpen: false,
 
   enterRoom: (room) => {
     const cur = get().room;
     if (room === cur) return;
-    set({ room, moveDir: exitDir(cur, room), nearObjectId: null });
+    set({ room, moveDir: exitDir(cur, room), nearObjectId: null, nearHint: null });
   },
   setNearObject: (id) => {
     if (get().nearObjectId !== id) set({ nearObjectId: id });
+  },
+  setNearHint: (hint) => {
+    if (get().nearHint !== hint) set({ nearHint: hint });
   },
   interact: () => {
     const s = get();
