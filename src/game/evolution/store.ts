@@ -80,10 +80,15 @@ export const UNITS_PER_SIDE = 15; // 사용자 지정(2026-10-27, 처음엔 10)
 const ZERO: Levels = { atk: 0, pen: 0, def: 0, hp: 0, eva: 0, spl: 0, acc: 0 };
 export const total = (l: Levels) => (Object.values(l) as number[]).reduce((a, b) => a + b, 0);
 
-/** 라운드별 적 강화 개수만큼 랜덤 배분(한 종류 최대 3) */
+/**
+ * 라운드별 적 강화 개수만큼 랜덤 배분(한 종류 최대 3). 단, 적어도 한 종류는 2단계 이상(사용자 지정, 2026-10-27) —
+ * 1단계씩 고르게 흩어지면 노릴 상성이 없어 승패가 운에 달린다. 그래서 한 종류를 먼저 2단계로 찍고 나머지를 랜덤으로 나눈다
+ */
 function rollEnemy(round: number): Levels {
   const l = { ...ZERO };
-  let budget = enemyBudget(round);
+  const keys = Object.keys(l) as UpKey[];
+  l[keys[Math.floor(Math.random() * keys.length)]] = 2;
+  let budget = enemyBudget(round) - 2;
   while (budget > 0) {
     const open = (Object.keys(l) as UpKey[]).filter((k) => l[k] < MAX_PER);
     l[open[Math.floor(Math.random() * open.length)]]++;
