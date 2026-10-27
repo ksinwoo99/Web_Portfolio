@@ -110,6 +110,8 @@ type EvoState = {
   result: "win" | "lose" | null;
   press: Press;
   upgrade: (k: UpKey) => void;
+  /** 강화 1단계 빼기(Q · 우클릭) — 진화 포인트 1개를 돌려받는다 */
+  downgrade: (k: UpKey) => void;
   refund: () => void;
   setAlive: (ally: number, enemy: number) => void;
   endBattle: (win: boolean) => void;
@@ -141,6 +143,11 @@ export const useEvoStore = create<EvoState>()((set, get) => ({
       : total(s.ally) >= allyLimit(s.round) ? "진화 포인트가 없어요" : "";
     if (fail) { set({ press: { seq: s.press.seq + 1, key: k, msg: fail, ok: false } }); return; }
     set({ ally: { ...s.ally, [k]: s.ally[k] + 1 }, press: { seq: s.press.seq + 1, key: k, msg: `+${name}`, ok: true } });
+  },
+  downgrade: (k) => {
+    const s = get(), name = NAME[k];
+    if (!s.ally[k]) { set({ press: { seq: s.press.seq + 1, key: k, msg: `${name} 강화 없음`, ok: false } }); return; }
+    set({ ally: { ...s.ally, [k]: s.ally[k] - 1 }, press: { seq: s.press.seq + 1, key: k, msg: `−${name}`, ok: true } });
   },
   refund: () => {
     const s = get();

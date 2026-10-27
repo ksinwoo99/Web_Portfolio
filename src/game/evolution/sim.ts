@@ -341,4 +341,10 @@ function lights(): Light[] {
   return units.filter((u) => u.hp > 0).map((u) => ({ x: u.x, y: u.y, r: 9, color: u.team === 0 ? P.unitAlly : P.unitEnemy, a: 0.55 }));
 }
 
-export const evolutionPlugin: RoomPlugin = { update, draw, drawTop, lights };
+// 우클릭: 강화 버튼이면 1단계 빼기(Q와 같음 — py.Factory 방의 우클릭 보조 동작과 맞춤)
+function secondary(objectId: string | null) {
+  const k = objectId ? PAD_KEY[objectId] : null;
+  if (k && isUpgrade(k)) store.getState().downgrade(k);
+}
+
+export const evolutionPlugin: RoomPlugin = { update, draw, drawTop, lights, secondary };

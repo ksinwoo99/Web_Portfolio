@@ -32,6 +32,8 @@ export type RoomObject = {
   kind: ObjectKind;
   label: string;
   action?: string; // 조작 배지 E 설명(없으면 "○○ 살펴보기")
+  onAlt?: () => void;  // Q(가까이 있을 때) 보조 동작
+  altAction?: string;  // 조작 배지 Q 설명
 } & (
   | { content: PanelContent; onActivate?: never }  // 클릭/E → 모달 패널
   | { onActivate: () => void; content?: never }    // 클릭/E → 체험판 고유 동작(예: py.Factory 코딩창)
@@ -92,7 +94,7 @@ export const ROOMS: Record<RoomId, Room> = {
     summary: "기획 중인 AI 진화 게임. 곧 공개.",
     tag: "오른쪽 버튼으로 아군(초록)을 강화하고 전투 시작을 누르세요. 왼쪽 화면에서 적(빨강)과 싸웁니다.",
     exits: { right: "lobby" },
-    controlsExtra: [],
+    controlsExtra: [{ key: "Q", label: "강화 1 빼기(강화 버튼 앞에서 · 우클릭)" }],
     // 왼쪽 6칸은 화면 패널(maps.ts의 P), 오른쪽 8칸(7~14열)에 강화 버튼. 누르면 아군 강화(한 종류 3번, 합계 한도는 store.ts allyLimit)
     objects: [
       // 배치(사용자 지정, 2026-10-26~27): 맨 위 줄 전투 시작 · 정지 · 강화 초기화 → 그 아래 강화 7종을 묶음별 세로 줄로 →
@@ -102,6 +104,8 @@ export const ROOMS: Record<RoomId, Room> = {
         label: EVO_NAMES[k],
         action: `${EVO_NAMES[k]} 강화`,
         onActivate: () => useEvoStore.getState().upgrade(k),
+        altAction: `${EVO_NAMES[k]} 1 빼기`, // 사용자 요청(2026-10-27): 버튼 앞에서 Q → 그 강화 1단계 되돌려받기
+        onAlt: () => useEvoStore.getState().downgrade(k),
       })),
       {
         id: "evo-start", col: 7, row: 1, kind: "pad", label: "전투 시작", action: "전투 시작",

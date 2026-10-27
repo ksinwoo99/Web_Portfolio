@@ -27,7 +27,8 @@ export default function ControlsPanel() {
     ...BASE_CONTROLS,
     { key: "E", label: near ? near.action ?? `${near.label} 살펴보기` : "상호작용" },
     { key: "ESC", label: "닫기" },
-    ...ROOMS[room].controlsExtra,
+    // 방별 배지. 가까운 오브젝트에 Q 동작이 있으면 그 설명으로 바꾼다
+    ...ROOMS[room].controlsExtra.map((b) => (b.key === "Q" && near?.altAction ? { ...b, label: near.altAction } : b)),
   ];
 
   return (

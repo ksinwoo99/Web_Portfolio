@@ -23,6 +23,8 @@ type GameState = {
   enterRoom: (room: RoomId) => void;
   setNearObject: (id: string | null) => void;
   interact: () => void;
+  /** Q: 가까운 오브젝트의 보조 동작(onAlt — 예: AI 진화 방 강화 1 빼기) */
+  interactAlt: () => void;
   openObject: (id: string) => void;
   openList: () => void;
   closeSheets: () => void;
@@ -50,6 +52,11 @@ export const useGameStore = create<GameState>()((set, get) => ({
     const s = get();
     if (isLocked(s) || !s.nearObjectId) return;
     s.openObject(s.nearObjectId);
+  },
+  interactAlt: () => {
+    const s = get();
+    if (isLocked(s) || !s.nearObjectId) return;
+    OBJECTS_BY_ID[s.nearObjectId]?.onAlt?.();
   },
   openObject: (id) => {
     const o = OBJECTS_BY_ID[id];

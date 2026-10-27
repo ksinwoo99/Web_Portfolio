@@ -189,6 +189,7 @@ export function startEngine(canvas: HTMLCanvasElement): () => void {
     if (k === "shift") { if (!e.repeat) startDash(); return; }
     if (k === "escape") { store.getState().closeSheets(); return; }
     if (k === "e") store.getState().interact();
+    if (k === "q") store.getState().interactAlt();
     if (k === " " && !isLocked(store.getState())) { store.getState().interact(); e.preventDefault(); }
     keys[k] = true;
     if (k.startsWith("arrow")) e.preventDefault();
