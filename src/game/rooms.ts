@@ -56,7 +56,7 @@ export const ROOMS: Record<RoomId, Room> = {
     sign: "로비",
     summary: "제작 목록 · 기획 및 분석 · 자기소개로 이어지는 중앙 홀.",
     tag: "바닥의 화살표를 따라 문으로 걸어가거나, 문을 클릭하세요.",
-    exits: { up: "works", down: "archive", right: "about" },
+    exits: { up: "works", left: "archive", right: "about" },
     objects: [],
     controlsExtra: [],
   },
@@ -145,7 +145,7 @@ export const ROOMS: Record<RoomId, Room> = {
     sign: "기획 및 분석",
     summary: "직접 쓴 기획서와 분석글 모음.",
     tag: "책장을 클릭하거나, 가까이 가서 E를 누르세요.",
-    exits: { up: "lobby" },
+    exits: { right: "lobby" },
     controlsExtra: [],
     objects: [{
       id: "archive-shelf", col: 7, row: 4.5, w: 2, kind: "bookshelf", label: "책장",
