@@ -1,4 +1,5 @@
 import { ArchivePicker } from "../content/panels/ArchiveShelf";
+import AboutPanel from "../content/panels/AboutPanel";
 import type { ComponentType } from "react";
 import { usePyfStore } from "./pyfactory/store";
 import { useRlStore } from "./roguelike/store";
@@ -11,9 +12,9 @@ const EVO_COLS: Record<string, number> = { 공격: 7, 명중: 10.5, 방어: 14 }
 const EVO_PADS: [UpKey, number, number][] = GROUPS.flatMap((g) =>
   g.keys.map((k, i) => [k, EVO_COLS[g.name], 7.5 - (g.keys.length - 1 - i) * 2] as [UpKey, number, number]));
 
-export type RoomId = "lobby" | "pyfactory" | "roguelike" | "evolution" | "archive";
+export type RoomId = "lobby" | "works" | "pyfactory" | "roguelike" | "evolution" | "archive" | "about";
 export type Dir = "up" | "down" | "left" | "right";
-export type ObjectKind = "miner" | "productor" | "start-button" | "incubator" | "bookshelf" | "pad";
+export type ObjectKind = "miner" | "productor" | "start-button" | "incubator" | "bookshelf" | "pad" | "profile";
 
 export type ControlBadge = { key: string; label: string };
 
@@ -41,6 +42,7 @@ export type RoomObject = {
 
 export type Room = {
   name: string;
+  sign: string;    // 이 방으로 가는 문 앞 바닥에 적는 이름(엔진 drawSigns)
   summary: string; // 목록 뷰·로비 카드에 쓰는 한 줄 소개
   tag: string;     // 게임창 아래 안내 문구
   exits: Partial<Record<Dir, RoomId>>;
@@ -51,17 +53,28 @@ export type Room = {
 export const ROOMS: Record<RoomId, Room> = {
   lobby: {
     name: "로비",
-    summary: "네 개의 전시실로 이어지는 중앙 홀.",
-    tag: "문을 클릭하거나 걸어가서 전시실로 들어가세요.",
-    exits: { up: "pyfactory", right: "roguelike", left: "evolution", down: "archive" },
+    sign: "로비",
+    summary: "제작 목록 · 기획 및 분석 · 자기소개로 이어지는 중앙 홀.",
+    tag: "바닥의 화살표를 따라 문으로 걸어가거나, 문을 클릭하세요.",
+    exits: { up: "works", down: "archive", right: "about" },
+    objects: [],
+    controlsExtra: [],
+  },
+  works: {
+    name: "제작 목록",
+    sign: "제작 목록",
+    summary: "직접 만든 게임 세 개(py.Factory · 로그라이크 · AI 진화)로 이어지는 방.",
+    tag: "바닥의 화살표를 따라 각 게임 체험실로 들어가세요.",
+    exits: { down: "lobby", up: "pyfactory", left: "evolution", right: "roguelike" },
     objects: [],
     controlsExtra: [],
   },
   pyfactory: {
     name: "py.Factory 체험실",
+    sign: "py.Factory",
     summary: "코드로 공장을 돌리는 자동화 게임. 채굴기·가공기를 직접 코딩.",
     tag: "채굴기·가공기를 클릭하거나, 가까이 가서 E를 눌러 코딩창을 여세요.",
-    exits: { down: "lobby" },
+    exits: { down: "works" },
     controlsExtra: [
       { key: "우클릭", label: "설치물 재가동" },
       { key: "F5", label: "코딩창 실행" },
@@ -80,9 +93,10 @@ export const ROOMS: Record<RoomId, Room> = {
   },
   roguelike: {
     name: "로그라이크 체험실",
+    sign: "로그라이크",
     summary: "제작 중인 소규모 로그라이크. 바로 시작해서 한 판.",
     tag: "가운데 GAME START를 클릭하거나, 가까이 가서 E를 누르세요.",
-    exits: { left: "lobby" },
+    exits: { left: "works" },
     controlsExtra: [],
     objects: [{
       id: "roguelike-start", col: 6.5, row: 4.5, w: 3, kind: "start-button", label: "GAME START",
@@ -91,9 +105,10 @@ export const ROOMS: Record<RoomId, Room> = {
   },
   evolution: {
     name: "AI 진화 게임 체험실",
+    sign: "AI 진화 게임",
     summary: "기획 중인 AI 진화 게임. 곧 공개.",
     tag: "오른쪽 버튼으로 아군(초록)을 강화하고 전투 시작을 누르세요. 왼쪽 화면에서 적(빨강)과 싸웁니다.",
-    exits: { right: "lobby" },
+    exits: { right: "works" },
     controlsExtra: [{ key: "Q", label: "강화 1 빼기(강화 버튼 앞에서 · 우클릭)" }],
     // 왼쪽 6칸은 화면 패널(maps.ts의 P), 오른쪽 8칸(7~14열)에 강화 버튼. 누르면 아군 강화(한 종류 3번, 합계 한도는 store.ts allyLimit)
     objects: [
@@ -126,7 +141,8 @@ export const ROOMS: Record<RoomId, Room> = {
     ],
   },
   archive: {
-    name: "기획 자료실",
+    name: "기획 및 분석",
+    sign: "기획 및 분석",
     summary: "직접 쓴 기획서와 분석글 모음.",
     tag: "책장을 클릭하거나, 가까이 가서 E를 누르세요.",
     exits: { up: "lobby" },
@@ -134,12 +150,24 @@ export const ROOMS: Record<RoomId, Room> = {
     objects: [{
       id: "archive-shelf", col: 7, row: 4.5, w: 2, kind: "bookshelf", label: "책장",
       // 팝업에서는 고르기만 하고, 문서는 게임창 아래 자료실 페이지에서 넓게 열린다(사용자 요청)
-      content: { title: "기획 자료실", lede: "문서를 고르면 게임창 아래에서 넓게 열립니다.", Body: ArchivePicker },
+      content: { title: "기획 및 분석", lede: "문서를 고르면 게임창 아래에서 넓게 열립니다.", Body: ArchivePicker },
+    }],
+  },
+  about: {
+    name: "자기소개",
+    sign: "자기소개",
+    summary: "게임 개발자 김신우 소개와 연락처.",
+    tag: "액자를 클릭하거나, 가까이 가서 E를 누르세요. 아래에 소개가 이어집니다.",
+    exits: { left: "lobby" },
+    controlsExtra: [],
+    objects: [{
+      id: "about-profile", col: 7, row: 3.5, w: 2, kind: "profile", label: "자기소개", action: "자기소개 보기",
+      content: { title: "자기소개", lede: "게임 개발자 김신우", Body: AboutPanel },
     }],
   },
 };
 
-export const ROOM_ORDER: RoomId[] = ["lobby", "pyfactory", "roguelike", "evolution", "archive"];
+export const ROOM_ORDER: RoomId[] = ["lobby", "works", "pyfactory", "roguelike", "evolution", "archive", "about"];
 export const OPPOSITE: Record<Dir, Dir> = { up: "down", down: "up", left: "right", right: "left" };
 export const DIR_VEC: Record<Dir, { x: number; y: number }> = {
   up: { x: 0, y: -1 }, down: { x: 0, y: 1 }, left: { x: -1, y: 0 }, right: { x: 1, y: 0 },

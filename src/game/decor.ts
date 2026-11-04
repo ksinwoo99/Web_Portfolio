@@ -18,6 +18,8 @@ const lamps: Decor[] = [{ kind: "lamp", col: 3, row: 0 }, { kind: "lamp", col: 1
 
 export const DECOR: Record<RoomId, Decor[]> = {
   lobby: [{ kind: "rug", col: 5, row: 3, w: 6, h: 4 }, ...corners("plant"), ...lamps],
+  works: [{ kind: "rug", col: 5, row: 3, w: 6, h: 4 }, ...corners("crate"), ...lamps],
+  about: [{ kind: "rug", col: 5, row: 3, w: 6, h: 4 }, ...corners("plant"), ...lamps],
   // 코딩창이 오른쪽 위를 덮으니 상자는 아래쪽에
   pyfactory: [
     { kind: "crate", col: 1, row: 8 }, { kind: "crate", col: 2, row: 8 }, { kind: "crate", col: 1, row: 7 },

@@ -53,7 +53,7 @@ const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 /* ---------- 오브젝트 기하 ---------- */
 const objW = (o: RoomObject) => o.w ?? 1;
 const objCenter = (o: RoomObject): Pt => ({ x: (o.col + objW(o) / 2) * TILE, y: o.row * TILE + TILE / 2 });
-const OBJ_TOP: Record<RoomObject["kind"], number> = { miner: -12, productor: -14, "start-button": 0, incubator: -14, bookshelf: -16, pad: -2 };
+const OBJ_TOP: Record<RoomObject["kind"], number> = { miner: -12, productor: -14, "start-button": 0, incubator: -14, bookshelf: -16, pad: -2, profile: -18 };
 
 // 코딩창 등에 글을 쓰는 중이면 이동·상호작용 키로 받지 않는다.
 const isTyping = (e: KeyboardEvent) => {
@@ -543,6 +543,40 @@ export function startEngine(canvas: HTMLCanvasElement): () => void {
     }
   }
 
+  /*
+   * 문 앞 바닥 표지: 문 쪽을 가리키는 화살표 + 그 문으로 가는 방 이름(사용자 요청, 2026-11-04 — 문이 어디로 통하는지 알 수 없었다).
+   * 바닥에 칠한 글씨처럼 도트 버퍼에 그려 캐릭터가 위를 밟고 지나간다. Galmuri11은 11px에서 획이 맞는 글꼴이라 버퍼에 그려도 선명하다
+   */
+  const ARROW = ["...#...", "..###..", ".#####.", "#######", "..###..", "..###..", "..###.."]; // 위쪽 화살표
+  function drawSigns(r: RoomId) {
+    ctx.font = "11px Galmuri11, monospace";
+    ctx.textBaseline = "middle";
+    for (const d of DOORS[r]) {
+      const to = ROOMS[r].exits[d.side];
+      if (!to) continue;
+      const cx = d.x + d.w / 2, cy = d.y + d.h / 2;
+      const [ax, ay] = d.side === "up" ? [cx, d.y + d.h + 8] : d.side === "down" ? [cx, d.y - 9]
+        : d.side === "left" ? [d.x + d.w + 9, cy] : [d.x - 9, cy];
+      ctx.globalAlpha = 0.9;
+      ARROW.forEach((row, rr) => [...row].forEach((ch, c) => {
+        if (ch !== "#") return;
+        const [dx, dy] = d.side === "up" ? [c - 3, rr - 3] : d.side === "down" ? [c - 3, 3 - rr]
+          : d.side === "left" ? [rr - 3, c - 3] : [3 - rr, c - 3];
+        px(ax + dx, ay + dy, 1, 1, PAL.brass);
+      }));
+      const text = ROOMS[to].sign;
+      const [tx, ty, align]: [number, number, CanvasTextAlign] = d.side === "up" ? [cx, ay + 13, "center"]
+        : d.side === "down" ? [cx, ay - 13, "center"] : d.side === "left" ? [ax + 7, cy, "left"] : [ax - 7, cy, "right"];
+      ctx.textAlign = align;
+      ctx.globalAlpha = 0.8;
+      ctx.fillStyle = PAL.void;
+      ctx.fillText(text, Math.round(tx) + 1, Math.round(ty) + 1);
+      ctx.fillStyle = PAL.ink;
+      ctx.fillText(text, Math.round(tx), Math.round(ty));
+      ctx.globalAlpha = 1;
+    }
+  }
+
   function drawDoors(r: RoomId) {
     for (const d of DOORS[r]) drawDoor(d, doorOpen.get(`${r}:${d.side}`) ?? 0);
   }
@@ -639,6 +673,15 @@ export function startEngine(canvas: HTMLCanvasElement): () => void {
       px(x + 7, y + 12 - b, 2, 2, PAL.ink);               // 기포
       ob(x + 1, y + 16, W - 2, 5, PAL.brassDark);         // 받침
       px(x + 1, y + 16, W - 2, 1, PAL.brass);
+    } else if (o.kind === "profile") {
+      // 자기소개 액자: 받침대 위 초상화(주인공 그림을 그대로 쓴다)
+      px(x + 12, y + 18, 2, 6, PAL.outline);              // 받침 다리
+      px(x + W - 14, y + 18, 2, 6, PAL.outline);
+      ob(x + 6, y - 18, W - 12, 38, PAL.brassDark);       // 액자 틀
+      px(x + 6, y - 18, W - 12, 2, PAL.brass);
+      px(x + 9, y - 15, W - 18, 32, PAL.carpetDark);      // 그림 바탕
+      drawHero(px, PAL, x + W / 2, y + 1, "down", 0);
+      px(x + 9, y + 13, W - 18, 4, PAL.carpetDark);       // 초상화 아래쪽(그림자 가림)
     } else if (o.kind === "pad") {
       // 강화 버튼(바닥에 선 콘솔). 아이콘·단계 표시는 체험판 플러그인이 그린다
       ob(x + 4, y + 2, W - 8, 18, PAL.metal);
@@ -679,6 +722,7 @@ export function startEngine(canvas: HTMLCanvasElement): () => void {
     drawRoom(r);
     drawDecor(r, "floor");
     drawDoors(r);
+    drawSigns(r);
     drawDecor(r, "props");
     for (const o of ROOMS[r].objects) drawObject(o, withNear && o === activeObject, now);
     ROOM_PLUGINS[r]?.draw(kit(now));
@@ -726,6 +770,7 @@ export function startEngine(canvas: HTMLCanvasElement): () => void {
       const c = objCenter(o);
       if (o.kind === "incubator") out.push({ x: c.x + ox, y: c.y - 4 + oy, r: 70, color: PAL.jade, a: 0.55, bloom: true });
       if (o.kind === "start-button") out.push({ x: c.x + ox, y: c.y + oy, r: 80, color: PAL.brass, a: 0.4, bloom: true });
+      if (o.kind === "profile") out.push({ x: c.x + ox, y: c.y - 8 + oy, r: 70, color: PAL.lightWarm, a: 0.5 });
     }
     if (r === room) for (const L of ROOM_PLUGINS[r]?.lights?.() ?? []) out.push({ ...L, x: L.x + ox, y: L.y + oy });
   }
