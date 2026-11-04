@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useArchiveStore } from "../content/archive/store";
 import { OBJECTS_BY_ID } from "../game/rooms";
 import { useGameStore } from "../store";
@@ -14,6 +14,15 @@ export default function PanelSheet() {
   useEffect(() => {
     if (docSeq) closeSheets();
   }, [docSeq, closeSheets]);
+
+  // 방이 바뀌면 그 방 전시물 팝업은 닫는다(안내 키오스크의 방 링크 등)
+  const room = useGameStore((s) => s.room);
+  const prevRoom = useRef(room);
+  useEffect(() => {
+    if (prevRoom.current === room) return;
+    prevRoom.current = room;
+    closeSheets();
+  }, [room, closeSheets]);
 
   return (
     <Sheet open={!!content} onClose={closeSheets} closeLabel="닫기" labelledBy="p-title">

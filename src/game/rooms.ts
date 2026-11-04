@@ -1,5 +1,7 @@
 import { ArchivePicker } from "../content/panels/ArchiveShelf";
 import AboutPanel from "../content/panels/AboutPanel";
+import VideoPanel from "../content/panels/VideoPanel";
+import WorksGuide from "../content/panels/WorksGuide";
 import type { ComponentType } from "react";
 import { usePyfStore } from "./pyfactory/store";
 import { useRlStore } from "./roguelike/store";
@@ -14,7 +16,7 @@ const EVO_PADS: [UpKey, number, number][] = GROUPS.flatMap((g) =>
 
 export type RoomId = "lobby" | "works" | "pyfactory" | "roguelike" | "evolution" | "archive" | "about";
 export type Dir = "up" | "down" | "left" | "right";
-export type ObjectKind = "miner" | "productor" | "start-button" | "incubator" | "bookshelf" | "pad" | "profile";
+export type ObjectKind = "miner" | "productor" | "start-button" | "incubator" | "bookshelf" | "pad" | "profile" | "kiosk" | "monitor";
 
 export type ControlBadge = { key: string; label: string };
 
@@ -54,19 +56,23 @@ export const ROOMS: Record<RoomId, Room> = {
   lobby: {
     name: "로비",
     sign: "로비",
-    summary: "제작 목록 · 기획 및 분석 · 자기소개로 이어지는 중앙 홀.",
+    summary: "게임 및 프로그램 제작 · 기획 및 분석 · 자기소개로 이어지는 중앙 홀.",
     tag: "바닥의 화살표를 따라 문으로 걸어가거나, 문을 클릭하세요.",
     exits: { up: "works", left: "archive", right: "about" },
     objects: [],
     controlsExtra: [],
   },
   works: {
-    name: "제작 목록",
-    sign: "제작 목록",
+    name: "게임 및 프로그램 제작",
+    sign: "게임 및 프로그램 제작",
     summary: "직접 만든 게임 세 개(py.Factory · 로그라이크 · AI 진화)로 이어지는 방.",
-    tag: "바닥의 화살표를 따라 각 게임 체험실로 들어가세요.",
+    tag: "가운데 안내 키오스크를 클릭하거나 E — 바닥의 화살표를 따라 각 게임 체험실로 들어가세요.",
     exits: { down: "lobby", up: "pyfactory", left: "evolution", right: "roguelike" },
-    objects: [],
+    // 정중앙 안내 키오스크(사용자 요청, 2026-11-04). 방 정중앙이 막혀 있어도 placeAtEntry가 문 앞에 세운다
+    objects: [{
+      id: "works-guide", col: 7, row: 4.5, w: 2, kind: "kiosk", label: "안내", action: "안내 보기",
+      content: { title: "게임 및 프로그램 제작", lede: "직접 만든 게임 세 개를 웹으로 옮긴 체험실입니다.", Body: WorksGuide },
+    }],
     controlsExtra: [],
   },
   pyfactory: {
@@ -157,13 +163,19 @@ export const ROOMS: Record<RoomId, Room> = {
     name: "자기소개",
     sign: "자기소개",
     summary: "게임 개발자 김신우 소개와 연락처.",
-    tag: "액자를 클릭하거나, 가까이 가서 E를 누르세요. 아래에 소개가 이어집니다.",
+    tag: "액자나 모니터를 클릭하거나, 가까이 가서 E를 누르세요. 아래에 소개가 이어집니다.",
     exits: { left: "lobby" },
     controlsExtra: [],
-    objects: [{
-      id: "about-profile", col: 7, row: 3.5, w: 2, kind: "profile", label: "자기소개", action: "자기소개 보기",
-      content: { title: "자기소개", lede: "게임 개발자 김신우", Body: AboutPanel },
-    }],
+    objects: [
+      {
+        id: "about-profile", col: 5, row: 3.5, w: 2, kind: "profile", label: "자기소개", action: "자기소개 보기",
+        content: { title: "자기소개", lede: "게임 개발자 김신우", Body: AboutPanel },
+      },
+      { // 영상 자기소개서(사용자 요청, 2026-11-04)
+        id: "about-video", col: 9, row: 3.5, w: 2, kind: "monitor", label: "영상 자기소개서", action: "영상 자기소개서 보기",
+        content: { title: "영상 자기소개서", lede: "직접 만든 영상 자기소개서입니다.", Body: VideoPanel },
+      },
+    ],
   },
 };
 

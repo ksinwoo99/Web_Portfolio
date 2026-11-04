@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# 영상 자소서(96MB) — 배포 방법(유튜브 / 직접 올리기) 정할 때까지 git에 안 올림
+public/video/

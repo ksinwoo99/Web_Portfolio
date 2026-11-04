@@ -53,7 +53,7 @@ const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 /* ---------- 오브젝트 기하 ---------- */
 const objW = (o: RoomObject) => o.w ?? 1;
 const objCenter = (o: RoomObject): Pt => ({ x: (o.col + objW(o) / 2) * TILE, y: o.row * TILE + TILE / 2 });
-const OBJ_TOP: Record<RoomObject["kind"], number> = { miner: -12, productor: -14, "start-button": 0, incubator: -14, bookshelf: -16, pad: -2, profile: -18 };
+const OBJ_TOP: Record<RoomObject["kind"], number> = { miner: -12, productor: -14, "start-button": 0, incubator: -14, bookshelf: -16, pad: -2, profile: -18, kiosk: -22, monitor: -16 };
 
 // 코딩창 등에 글을 쓰는 중이면 이동·상호작용 키로 받지 않는다.
 const isTyping = (e: KeyboardEvent) => {
@@ -689,6 +689,38 @@ export function startEngine(canvas: HTMLCanvasElement): () => void {
       px(x + W - 7, y + 4, 3, 16, PAL.wallFace);
       ob(x + 8, y + 3, 9, 7, isNear ? PAL.carpetDark : PAL.void2); // 화면
       ob(x + 7, y + 13, 10, 4, isNear ? PAL.hairHi : PAL.brass);    // 누르는 버튼
+    } else if (o.kind === "kiosk") {
+      // 안내 키오스크: 받침 + 콘솔 + 위에 떠 있는 홀로그램 "i"
+      ob(x + 15, y + 2, W - 30, 18, PAL.metal);           // 받침
+      px(x + 15, y + 2, 2, 18, PAL.metalHi);
+      px(x + W - 18, y + 2, 3, 18, PAL.wallFace);
+      ob(x + 9, y - 4, W - 18, 7, PAL.wallSide);          // 콘솔 윗판
+      px(x + 9, y - 4, W - 18, 1, PAL.wallHi);
+      px(x + 12, y - 2, W - 24, 3, isNear ? PAL.jade : PAL.void2); // 콘솔 화면
+      ob(x + 11, y + 19, W - 22, 3, PAL.brassDark);       // 바닥판
+      const hb = Math.round(Math.sin(now / 380) * 1.5), cx = x + W / 2;
+      ctx.globalAlpha = 0.35;
+      for (let i = 0; i < 4; i++) px(cx - 2 - i * 2, y - 6 - i * 2, 4 + i * 4, 1, PAL.jade); // 빛 원뿔
+      ctx.globalAlpha = 1;
+      px(cx - 2, y - 22 + hb, 4, 3, PAL.jade);             // i 점
+      px(cx - 2, y - 17 + hb, 4, 8, PAL.jade);             // i 기둥
+      px(cx - 4, y - 17 + hb, 2, 2, PAL.jade);
+      px(cx - 4, y - 10 + hb, 8, 1, PAL.jade);
+      px(cx - 1, y - 21 + hb, 1, 1, PAL.metalHi);          // 반짝임
+    } else if (o.kind === "monitor") {
+      // 영상 모니터: 받침대 위 화면 + 재생 표시 + 흐르는 주사선
+      px(x + W / 2 - 2, y + 12, 4, 7, PAL.metal);          // 목
+      ob(x + W / 2 - 9, y + 18, 18, 3, PAL.metal);         // 받침
+      px(x + W / 2 - 9, y + 18, 18, 1, PAL.metalHi);
+      ob(x + 3, y - 16, W - 6, 29, PAL.wallSide);          // 베젤
+      px(x + 3, y - 16, W - 6, 1, PAL.wallHi);
+      px(x + 6, y - 13, W - 12, 22, PAL.void2);            // 화면
+      const tx = x + W / 2 - 3, ty = y - 7;
+      for (let c = 0; c < 6; c++) px(tx + c, ty + c, 1, 11 - 2 * c, isNear ? PAL.ink : PAL.brass); // 재생 삼각형
+      ctx.globalAlpha = 0.25;
+      px(x + 6, y - 13 + (Math.floor(now / 90) % 22), W - 12, 1, PAL.metalHi); // 주사선
+      ctx.globalAlpha = 1;
+      px(x + W - 9, y + 10, 2, 1, PAL.jade);                // 전원 등
     } else if (o.kind === "bookshelf") {
       ob(x, y - 16, W, TILE + 14, PAL.brassDark);         // 틀
       px(x, y - 16, W, 2, PAL.brass);
@@ -771,6 +803,8 @@ export function startEngine(canvas: HTMLCanvasElement): () => void {
       if (o.kind === "incubator") out.push({ x: c.x + ox, y: c.y - 4 + oy, r: 70, color: PAL.jade, a: 0.55, bloom: true });
       if (o.kind === "start-button") out.push({ x: c.x + ox, y: c.y + oy, r: 80, color: PAL.brass, a: 0.4, bloom: true });
       if (o.kind === "profile") out.push({ x: c.x + ox, y: c.y - 8 + oy, r: 70, color: PAL.lightWarm, a: 0.5 });
+      if (o.kind === "kiosk") out.push({ x: c.x + ox, y: c.y - 22 + oy, r: 60, color: PAL.jade, a: 0.5, bloom: true });
+      if (o.kind === "monitor") out.push({ x: c.x + ox, y: c.y - 14 + oy, r: 64, color: PAL.jade, a: 0.4, bloom: true });
     }
     if (r === room) for (const L of ROOM_PLUGINS[r]?.lights?.() ?? []) out.push({ ...L, x: L.x + ox, y: L.y + oy });
   }
