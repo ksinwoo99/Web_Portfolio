@@ -440,6 +440,14 @@ canvas#game{
 .sheet .lede{color:var(--text-2);margin-bottom:22px}
 .close{display:block;width:100%;margin-top:24px;padding:10px 16px}
 
+/* 전시물 팝업을 게임창 안에(넓은 게임창에서만 — PanelSheet). 시안 A: 사이트와 같은 종이 카드, 게임 글꼴·색은 되돌린다 */
+.sheet.in-game{
+  position:absolute;z-index:6;display:flex;align-items:center;justify-content:center;padding:20px;
+  font-family:var(--sans);color:var(--text);font-size:16px;line-height:1.7;
+  -webkit-font-smoothing:antialiased;word-break:keep-all;
+}
+.sheet.in-game .sheet-inner{width:100%;margin:0;max-height:100%;overflow-y:auto;overscroll-behavior:contain;box-shadow:6px 6px 0 var(--line)}
+
 /* 목록 뷰 */
 .sheet.list .sheet-inner{max-width:680px}
 .room-link{

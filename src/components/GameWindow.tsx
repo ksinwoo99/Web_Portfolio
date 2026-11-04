@@ -58,7 +58,7 @@ export default function GameWindow() {
     <div className="game-window" ref={wrapRef}>
       <div className="stage">
         {/* 터치 조작층은 캔버스 영역만 덮는다 — 좁은 화면에서 아래로 내려가는 코딩창을 가리지 않게 */}
-        <div className="screen">
+        <div className="screen" id="game-screen">
           <canvas id="game" ref={canvasRef} aria-label="포트폴리오 허브 맵" />
           <TouchControls />
           {room === "roguelike" && <RlOverlay />}
