@@ -6,8 +6,8 @@ import TouchControls from "./TouchControls";
 import CodingWindow from "./pyfactory/CodingWindow";
 import RlOverlay from "./roguelike/RlOverlay";
 
-const PAD = 10;          // .game-window 안쪽 여백(한쪽)
-const TOP_RESERVE = 110; // 게임창 위쪽(고정 상단바 등)에 남겨둘 높이 — 게임창 전체가 한 화면에 들어오게
+const PAD = 10;    // .game-window 안쪽 여백(한쪽)
+const MARGIN = 12; // 화면 높이에 맞출 때 위아래로 남기는 틈
 
 export default function GameWindow() {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -17,7 +17,8 @@ export default function GameWindow() {
   useEffect(() => startEngine(canvasRef.current!), []);
 
   /*
-   * 게임창은 페이지 폭(그리고 화면 높이)에 맞춰 연속으로 커진다.
+   * 게임창은 브라우저 폭에 맞춰 연속으로 커진다(2026-11-04 사용자 요청 — "비율은 맞추되 페이지에 꽉 차게").
+   * 본문 폭(--page)에 묶이지 않고 양옆 여백만 남긴 채 넓어지며, 높이는 고정 상단바 아래 한 화면에 다 들어오는 데까지.
    * 도트가 뭉개지지 않게 화면 캔버스의 실제 픽셀 크기는 384×240의 정수배(k)로 두고 엔진이 최근접 확대로 채운다.
    * 그걸 CSS 크기로 살짝 줄여 보여주므로(k는 필요한 배율의 올림) 픽셀 경계가 고르게 유지된다.
    */
@@ -26,9 +27,15 @@ export default function GameWindow() {
     const section = wrap.parentElement!;
     const resize = () => {
       const cs = getComputedStyle(section);
-      const byWidth = section.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - PAD * 2;
-      const byHeight = ((innerHeight - TOP_RESERVE) * VW) / VH;
+      const gutter = parseFloat(cs.paddingLeft); // 페이지 양옆 여백(넓은 화면 24px, 좁은 화면 16px)
+      const inner = section.clientWidth - gutter - parseFloat(cs.paddingRight);
+      const byWidth = document.documentElement.clientWidth - gutter * 2 - PAD * 2;
+      const header = document.querySelector(".site-header")?.getBoundingClientRect().height ?? 0;
+      const byHeight = ((innerHeight - header - PAD * 2 - MARGIN * 2) * VW) / VH;
       const w = Math.max(Math.min(byWidth, byHeight), Math.min(byWidth, VW)); // 너무 낮은 화면에서도 1배 밑으로는 안 줄임
+      // 본문 폭보다 넓으면 양옆으로 똑같이 튀어나오게(가운데 정렬)
+      const over = Math.floor(w) + PAD * 2 - inner;
+      wrap.style.marginLeft = over > 0 ? -Math.ceil(over / 2) + "px" : "";
       canvas.style.width = Math.floor(w) + "px";
       canvas.style.height = Math.round((w * VH) / VW) + "px";
       const k = Math.max(1, Math.ceil((w * devicePixelRatio) / VW - 0.01));
