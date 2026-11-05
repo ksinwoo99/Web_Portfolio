@@ -548,9 +548,13 @@ export function startEngine(canvas: HTMLCanvasElement): () => void {
    * 바닥에 칠한 글씨처럼 도트 버퍼에 그려 캐릭터가 위를 밟고 지나간다. Galmuri11은 11px에서 획이 맞는 글꼴이라 버퍼에 그려도 선명하다
    */
   const ARROW = ["...#...", "..###..", ".#####.", "#######", "..###..", "..###..", "..###.."]; // 위쪽 화살표
-  function drawSigns(r: RoomId) {
+  /**
+   * 문 앞 바닥 표지: 화살표는 도트 버퍼에, 방 이름 글자는 화면 해상도 label로(2026-11-05 사용자 요청 —
+   * 큰 화면에서 도트 버퍼의 11px 글자를 늘리면 깨져 보였다). label은 캐릭터 위에 그려지므로
+   * 캐릭터가 글자 위에 서 있으면 흐리게 해 밟고 선 것처럼 보이게 한다. ox·oy = 방 이동 패닝 오프셋
+   */
+  function drawSigns(r: RoomId, ox: number, oy: number) {
     ctx.font = "11px Galmuri11, monospace";
-    ctx.textBaseline = "middle";
     for (const d of DOORS[r]) {
       const to = ROOMS[r].exits[d.side];
       if (!to) continue;
@@ -567,13 +571,10 @@ export function startEngine(canvas: HTMLCanvasElement): () => void {
       const text = ROOMS[to].sign;
       const [tx, ty, align]: [number, number, CanvasTextAlign] = d.side === "up" ? [cx, ay + 13, "center"]
         : d.side === "down" ? [cx, ay - 13, "center"] : d.side === "left" ? [ax + 7, cy, "left"] : [ax - 7, cy, "right"];
-      ctx.textAlign = align;
-      ctx.globalAlpha = 0.8;
-      ctx.fillStyle = PAL.void;
-      ctx.fillText(text, Math.round(tx) + 1, Math.round(ty) + 1);
-      ctx.fillStyle = PAL.ink;
-      ctx.fillText(text, Math.round(tx), Math.round(ty));
       ctx.globalAlpha = 1;
+      const w = ctx.measureText(text).width, x0 = align === "center" ? tx - w / 2 : align === "left" ? tx : tx - w;
+      const under = !pan && r === room && player.x > x0 - 4 && player.x < x0 + w + 4 && Math.abs(player.y - ty) < 14;
+      labels.push({ t: text, x: tx + ox, y: ty - 6 + oy, color: PAL.ink, align, size: 11, alpha: (under ? 0.3 : 0.8) * (1 - flash) });
     }
   }
 
@@ -754,7 +755,7 @@ export function startEngine(canvas: HTMLCanvasElement): () => void {
     drawRoom(r);
     drawDecor(r, "floor");
     drawDoors(r);
-    drawSigns(r);
+    drawSigns(r, ox, oy);
     drawDecor(r, "props");
     for (const o of ROOMS[r].objects) drawObject(o, withNear && o === activeObject, now);
     ROOM_PLUGINS[r]?.draw(kit(now));
