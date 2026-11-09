@@ -44,6 +44,12 @@ export default function PanelSheet() {
     closeSheets();
   }, [room, closeSheets]);
 
+  // 패널 안 버튼이 팝업을 닫을 때(자기소개서 "전문 읽기" 등) — 패널은 게임 스토어를 import하지 못한다(순환 참조)
+  useEffect(() => {
+    addEventListener("portfolio:close-sheets", closeSheets);
+    return () => removeEventListener("portfolio:close-sheets", closeSheets);
+  }, [closeSheets]);
+
   const screen = useGameScreen(!!content);
   const sheet = (
     <Sheet open={!!content} onClose={closeSheets} closeLabel="닫기" labelledBy="p-title" className={screen ? "in-game" : undefined}>

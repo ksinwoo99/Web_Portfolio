@@ -109,6 +109,15 @@ a{color:inherit}
   color:var(--text-3);font-size:14px;
 }
 
+/* 자기소개서(CoverLetter.tsx) — 방 페이지 전문 · 팝업 미리보기 */
+.cover-letter{scroll-margin-top:80px}
+.cover-section{margin-bottom:18px}
+.cover-section h4{font-family:var(--pixel-ui);font-size:14px;font-weight:700;color:var(--accent-text);margin:18px 0 6px}
+.cover-preview{list-style:none;margin:0 0 16px!important;padding:0}
+.cover-preview li{border-top:2px dashed var(--line);padding:10px 0;margin:0}
+.cover-preview b{display:block;font-family:var(--pixel-ui);font-size:14px;color:var(--text)}
+.cover-preview span{font-size:14px;color:var(--text-2)}
+
 /* ---------- 배경 파티클 ---------- */
 .pixel-bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
 .pixel-bg canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges}
