@@ -1,6 +1,6 @@
 import { COUNTER_TEXT, FINAL_ROUND, GROUPS, MAX_PER, UPGRADES, allyLimit, total, useEvoStore, type Levels } from "../../game/evolution/store";
 
-// AI 진화 체험판 정보창(게임창 아래): 내 강화 현황과 상성. 이번 적의 강화는 게임창 안 화면 위쪽에 띄운다(사용자 요청)
+// 진화 시뮬레이션 체험판 정보창(게임창 아래): 내 강화 현황과 상성. 이번 적의 강화는 게임창 안 화면 위쪽에 띄운다(사용자 요청)
 export default function EvoHud() {
   const round = useEvoStore((s) => s.round);
   const attempts = useEvoStore((s) => s.attempts);

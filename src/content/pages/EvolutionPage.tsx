@@ -1,12 +1,12 @@
-// AI 진화 게임 전시실 페이지. 실제 게임은 아직 없고, 사용자가 기획한 "진화 전투" 부분만 게임창에 구현했다(2026-10-26)
+// 진화 시뮬레이션 게임 전시실 페이지. 실제 게임은 아직 없고, 사용자가 기획한 "진화 전투" 부분만 게임창에 구현했다(2026-10-26)
 import DownloadButton from "./DownloadButton";
 
 export default function EvolutionPage() {
   return (
     <>
-      <DownloadButton game="AI 진화 게임" platform="출시 전 · 기획 중" />
+      <DownloadButton game="진화 시뮬레이션 게임" platform="출시 전 · 기획 중" />
       <div className="prose">
-        <p>기획 중인 AI 진화 게임의 핵심 장면만 떼어 온 체험판입니다. 왼쪽 화면에서는 아군(초록) 15명과 적(빨강) 15명이
+        <p>기획 중인 진화 시뮬레이션 게임의 핵심 장면만 떼어 온 체험판입니다. 왼쪽 화면에서는 아군(초록) 15명과 적(빨강) 15명이
         자동으로 싸우고, 플레이어는 오른쪽 공간에서 아군의 진화 방향을 고릅니다.</p>
         <h3>체험 방법</h3>
         <ul>

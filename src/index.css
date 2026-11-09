@@ -47,8 +47,8 @@
   --hair-hi:#FF8A5C;    --skin-shade:#D9D3C6;  --blush:#E89A82;
   --light-ambient:#7A706A; /* 조명 맵 바탕(곱하기) — 어두울수록 방이 어둡다 */
   --light-warm:#FFD7AE;    /* 천장등·벽등·캐릭터 주변 빛 */
-  --unit-ally:#5BE37A;     /* AI 진화 체험판 아군(초록 — 사용자 요청, 파랑보다 아군 느낌) */
-  --unit-enemy:#FF4D5E;    /* AI 진화 체험판 적(빨강) */
+  --unit-ally:#5BE37A;     /* 진화 시뮬레이션 체험판 아군(초록 — 사용자 요청, 파랑보다 아군 느낌) */
+  --unit-enemy:#FF4D5E;    /* 진화 시뮬레이션 체험판 적(빨강) */
   --pixel:'Galmuri11','Galmuri9',-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -205,7 +205,7 @@ canvas#game{
 .room-card b{font-family:var(--pixel-ui);font-size:16px;font-weight:700}
 .room-card span{color:var(--text-2);font-size:14px}
 
-/* ---------- AI 진화 체험판 정보창 (게임창 아래 → 사이트 스타일) ---------- */
+/* ---------- 진화 시뮬레이션 체험판 정보창 (게임창 아래 → 사이트 스타일) ---------- */
 .evo-hud{
   margin:16px auto 0;padding:14px 16px;background:var(--surface);
   border:2px solid var(--line);box-shadow:4px 4px 0 var(--line);

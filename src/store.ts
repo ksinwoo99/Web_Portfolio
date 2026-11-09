@@ -26,7 +26,7 @@ type GameState = {
   setNearObject: (id: string | null) => void;
   setNearHint: (hint: string | null) => void;
   interact: () => void;
-  /** Q: 가까운 오브젝트의 보조 동작(onAlt — 예: AI 진화 방 강화 1 빼기) */
+  /** Q: 가까운 오브젝트의 보조 동작(onAlt — 예: 진화 시뮬레이션 방 강화 1 빼기) */
   interactAlt: () => void;
   openObject: (id: string) => void;
   openList: () => void;

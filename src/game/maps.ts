@@ -4,7 +4,7 @@ import type { RoomId } from "./rooms";
 // 타일맵 기호: # 벽 / . 바닥 / D 문 / P 화면 패널(막힘 — 엔진이 한 덩어리 화면으로 그린다) / 나머지는 바닥 취급
 // 16×10. 문은 2칸 폭(사용자 요청 — 들어가기 편하게). 위·아래 문은 7~8열, 좌우 문은 4~5행 — 둘 다 정중앙
 // 2026-11-04 구조 개편(사용자 요청): 로비 → 게임 및 프로그램 제작(위, 옛 이름 제작 목록) · 기획 및 분석(왼쪽) · 자기소개(오른쪽),
-// 게임 및 프로그램 제작 → py.Factory(위) · AI 진화(왼쪽) · 로그라이크(오른쪽). 게임 방들은 문 위치가 그대로다
+// 게임 및 프로그램 제작 → py.Factory(위) · 진화 시뮬레이션(왼쪽) · 로그라이크(오른쪽). 게임 방들은 문 위치가 그대로다
 export const MAPS: Record<RoomId, string[]> = {
   lobby: [
     "#######DD#######",
@@ -94,7 +94,7 @@ export const MAPS: Record<RoomId, string[]> = {
 
 export type Rect = { x: number; y: number; w: number; h: number };
 
-/** 방마다 화면 패널(P 타일)의 영역. 없으면 null — 지금은 AI 진화 방 왼쪽 "인게임 화면"만 있다 */
+/** 방마다 화면 패널(P 타일)의 영역. 없으면 null — 지금은 진화 시뮬레이션 방 왼쪽 "인게임 화면"만 있다 */
 export const PANEL_RECTS = Object.fromEntries(
   (Object.keys(MAPS) as RoomId[]).map((id) => {
     const cells: [number, number][] = [];

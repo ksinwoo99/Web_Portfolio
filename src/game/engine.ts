@@ -511,7 +511,7 @@ export function startEngine(canvas: HTMLCanvasElement): () => void {
   }
 
   /**
-   * 벽 크기의 화면 패널(AI 진화 방 왼쪽). 베젤(외곽선·금속 테두리) → 화면(어두운 바탕·격자·주사선).
+   * 벽 크기의 화면 패널(진화 시뮬레이션 방 왼쪽). 베젤(외곽선·금속 테두리) → 화면(어두운 바탕·격자·주사선).
    * 화면 안 내용(자동 전투)은 체험판 플러그인(evolution/sim.ts)이 panelScreen 영역에 그린다.
    */
   function drawPanel(pn: { x: number; y: number; w: number; h: number }) {

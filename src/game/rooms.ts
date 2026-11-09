@@ -65,7 +65,7 @@ export const ROOMS: Record<RoomId, Room> = {
   works: {
     name: "게임 및 프로그램 제작",
     sign: "게임 및 프로그램 제작",
-    summary: "직접 만든 게임 세 개(py.Factory · 로그라이크 · AI 진화)로 이어지는 방.",
+    summary: "직접 만든 게임 세 개(py.Factory · 로그라이크 · 진화 시뮬레이션)로 이어지는 방.",
     tag: "가운데 안내 키오스크를 클릭하거나 E — 바닥의 화살표를 따라 각 게임 체험실로 들어가세요.",
     exits: { down: "lobby", up: "pyfactory", left: "evolution", right: "roguelike" },
     // 정중앙 안내 키오스크(사용자 요청, 2026-11-04). 방 정중앙이 막혀 있어도 placeAtEntry가 문 앞에 세운다
@@ -110,9 +110,9 @@ export const ROOMS: Record<RoomId, Room> = {
     }],
   },
   evolution: {
-    name: "AI 진화 게임 체험실",
-    sign: "AI 진화 게임",
-    summary: "기획 중인 AI 진화 게임. 곧 공개.",
+    name: "진화 시뮬레이션 게임 체험실",
+    sign: "진화 시뮬레이션 게임",
+    summary: "기획 중인 진화 시뮬레이션 게임. 곧 공개.",
     tag: "오른쪽 버튼으로 아군(초록)을 강화하고 전투 시작을 누르세요. 왼쪽 화면에서 적(빨강)과 싸웁니다.",
     exits: { right: "works" },
     controlsExtra: [{ key: "Q", label: "강화 1 빼기(강화 버튼 앞에서 · 우클릭)" }],
