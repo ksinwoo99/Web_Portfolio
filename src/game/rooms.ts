@@ -178,7 +178,7 @@ export const ROOMS: Record<RoomId, Room> = {
       },
       { // 자기소개서(사용자 요청, 2026-11-09 — 시안 A 책상 위 서류철). 팝업은 소제목만, 전문은 아래 방 페이지
         id: "about-letter", col: 12, row: 3.5, w: 2, kind: "desk", label: "자기소개서", action: "자기소개서 보기",
-        content: { title: "자기소개서", lede: "소제목만 먼저 — 전문은 게임창 아래에 있습니다.", Body: CoverLetterPreview },
+        content: { title: "자기소개서", lede: "전문은 게임창 아래에 있습니다.", Body: CoverLetterPreview },
       },
     ],
   },
