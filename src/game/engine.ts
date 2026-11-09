@@ -53,7 +53,7 @@ const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 /* ---------- 오브젝트 기하 ---------- */
 const objW = (o: RoomObject) => o.w ?? 1;
 const objCenter = (o: RoomObject): Pt => ({ x: (o.col + objW(o) / 2) * TILE, y: o.row * TILE + TILE / 2 });
-const OBJ_TOP: Record<RoomObject["kind"], number> = { miner: -12, productor: -14, "start-button": 0, incubator: -14, bookshelf: -16, pad: -2, profile: -18, kiosk: -22, monitor: -16 };
+const OBJ_TOP: Record<RoomObject["kind"], number> = { miner: -12, productor: -14, "start-button": 0, incubator: -14, bookshelf: -16, pad: -2, profile: -18, kiosk: -22, monitor: -16, desk: -16 };
 
 // 코딩창 등에 글을 쓰는 중이면 이동·상호작용 키로 받지 않는다.
 const isTyping = (e: KeyboardEvent) => {
@@ -722,6 +722,24 @@ export function startEngine(canvas: HTMLCanvasElement): () => void {
       px(x + 6, y - 13 + (Math.floor(now / 90) % 22), W - 12, 1, PAL.metalHi); // 주사선
       ctx.globalAlpha = 1;
       px(x + W - 9, y + 10, 2, 1, PAL.jade);                // 전원 등
+    } else if (o.kind === "desk") {
+      // 자기소개서: 나무 책상 위 서류철 + 펜꽂이(시안 A, 2026-11-09)
+      ob(x + 4, y + 8, 3, 14, PAL.carpetDark);            // 책상 다리
+      ob(x + W - 7, y + 8, 3, 14, PAL.carpetDark);
+      ob(x, y, W, 9, PAL.carpet);                         // 상판
+      px(x, y, W, 2, PAL.carpetHi);
+      px(x, y + 8, W, 1, PAL.carpetDark);
+      ob(x + 8, y - 7, 20, 8, PAL.brassDark);             // 서류철
+      px(x + 8, y - 7, 20, 1, PAL.brass);
+      ob(x + 10, y - 12, 18, 7, PAL.ink);                 // 앞 종이
+      for (let i = 0; i < 3; i++) px(x + 12, y - 10 + i * 2, i === 2 ? 8 : 13, 1, PAL.inkDim);
+      ob(x + 12, y - 15, 18, 5, PAL.inkDim);              // 뒤 종이
+      px(x + 12, y - 15, 18, 1, PAL.ink);
+      px(x + 18, y - 16, 4, 3, isNear ? PAL.jade : PAL.brass); // 집게
+      ob(x + 34, y - 3, 8, 3, PAL.wallSide);              // 펜꽂이
+      px(x + 38, y - 12, 1, 9, PAL.ink);                  // 펜
+      px(x + 38, y - 13, 1, 1, PAL.brass);
+      px(x + 37, y - 12, 3, 1, PAL.metalHi);
     } else if (o.kind === "bookshelf") {
       ob(x, y - 16, W, TILE + 14, PAL.brassDark);         // 틀
       px(x, y - 16, W, 2, PAL.brass);
@@ -805,6 +823,7 @@ export function startEngine(canvas: HTMLCanvasElement): () => void {
       if (o.kind === "start-button") out.push({ x: c.x + ox, y: c.y + oy, r: 80, color: PAL.brass, a: 0.4, bloom: true });
       if (o.kind === "profile") out.push({ x: c.x + ox, y: c.y - 8 + oy, r: 70, color: PAL.lightWarm, a: 0.5 });
       if (o.kind === "kiosk") out.push({ x: c.x + ox, y: c.y - 22 + oy, r: 60, color: PAL.jade, a: 0.5, bloom: true });
+      if (o.kind === "desk") out.push({ x: c.x + ox, y: c.y - 10 + oy, r: 56, color: PAL.lightWarm, a: 0.4 });
       if (o.kind === "monitor") out.push({ x: c.x + ox, y: c.y - 14 + oy, r: 64, color: PAL.jade, a: 0.4, bloom: true });
     }
     if (r === room) for (const L of ROOM_PLUGINS[r]?.lights?.() ?? []) out.push({ ...L, x: L.x + ox, y: L.y + oy });

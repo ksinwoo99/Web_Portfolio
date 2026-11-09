@@ -26,8 +26,12 @@
 | 로그라이크 체험실 | `roguelike` | 제작 목록 오른쪽 | 게임창 정중앙 GAME START를 클릭하거나 E → 게임 시작 |
 | 진화 시뮬레이션 게임 체험실 | `evolution` | 제작 목록 왼쪽 | 실제 게임은 아직 없음 — 사용자 기획의 "진화 전투" 장면만 구현(아래 "진화 시뮬레이션 체험판") |
 | 기획 및 분석 | `archive` | 로비 왼쪽 | 책장 — 직접 쓴 기획서·분석글 열람(옛 이름 "기획 자료실") |
-| 자기소개 | `about` | 로비 오른쪽 | 액자(`profile` — 주인공 초상화)를 열면 소개·연락처(`AboutPanel` = `AboutContent` + `ContactContent`). 방 페이지도 같은 내용. 오른쪽 모니터(`monitor`)는 영상 자기소개서(`VideoPanel`) |
+| 자기소개 | `about` | 로비 오른쪽 | 액자(`profile` — 주인공 초상화)를 열면 소개·연락처(`AboutPanel` = `AboutContent` + `ContactContent`). 방 페이지도 같은 내용. 모니터(`monitor`)는 영상 자기소개서(`VideoPanel`), 맨 오른쪽 책상(`desk` — 서류철, 시안 A)은 자기소개서 |
 
+**자기소개서**(2026-11-09): 사용자가 `src/content/CoverLetter.tsx`의 `COVER_LETTER` 한 곳에 직접 쓴다. "성장 과정/지원 동기" 식 나눔이 별로라는
+사용자 의견으로 **소제목형** — 맨 위 한 줄 소개(`headline`) + 단락마다 질문(`label`) · 주장 한 문장 소제목(`title`) · 근거 문단 · 증거 체험실 링크(`proof`).
+방 페이지(`AboutPage`)에 소개 → 자기소개서 전문 → 연락처 순으로, 책상 팝업(`CoverLetterPreview`)엔 한 줄 소개 + 소제목만 + "아래에서 전문 읽기"
+(팝업 닫기는 `portfolio:close-sheets` 이벤트 — 패널은 게임 스토어를 import 못 한다). 내용을 대신 지어 쓰지 말 것
 **영상 자기소개서**(2026-11-04): 유튜브(`youtu.be/AAB4pwS-Zx8`)를 `youtube-nocookie` iframe으로 띄운다(`VideoPanel`).
 원본 mp4(96MB, 프로젝트 루트 `영상이력서_김신우.mp4`)는 **git에 올리지 말 것**(사용자 요청 — `.gitignore`의 `*.mp4`).
 **전시물 팝업은 게임창 안에 뜬다**(2026-11-04 사용자 요청 — "게임 느낌은 덜 나게", 시안 3종(종이 카드 / 어두운 반투명 / 오른쪽 사이드) 중 A 종이 카드):

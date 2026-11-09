@@ -2,6 +2,7 @@ import { ArchivePicker } from "../content/panels/ArchiveShelf";
 import AboutPanel from "../content/panels/AboutPanel";
 import VideoPanel from "../content/panels/VideoPanel";
 import WorksGuide from "../content/panels/WorksGuide";
+import { CoverLetterPreview } from "../content/CoverLetter";
 import type { ComponentType } from "react";
 import { usePyfStore } from "./pyfactory/store";
 import { useRlStore } from "./roguelike/store";
@@ -16,7 +17,7 @@ const EVO_PADS: [UpKey, number, number][] = GROUPS.flatMap((g) =>
 
 export type RoomId = "lobby" | "works" | "pyfactory" | "roguelike" | "evolution" | "archive" | "about";
 export type Dir = "up" | "down" | "left" | "right";
-export type ObjectKind = "miner" | "productor" | "start-button" | "incubator" | "bookshelf" | "pad" | "profile" | "kiosk" | "monitor";
+export type ObjectKind = "miner" | "productor" | "start-button" | "incubator" | "bookshelf" | "pad" | "profile" | "kiosk" | "monitor" | "desk";
 
 export type ControlBadge = { key: string; label: string };
 
@@ -163,7 +164,7 @@ export const ROOMS: Record<RoomId, Room> = {
     name: "자기소개",
     sign: "자기소개",
     summary: "게임 개발자 김신우 소개와 연락처.",
-    tag: "액자나 모니터를 클릭하거나, 가까이 가서 E를 누르세요. 아래에 소개가 이어집니다.",
+    tag: "액자·책상·모니터를 클릭하거나, 가까이 가서 E를 누르세요. 아래에 소개가 이어집니다.",
     exits: { left: "lobby" },
     controlsExtra: [],
     objects: [
@@ -174,6 +175,10 @@ export const ROOMS: Record<RoomId, Room> = {
       { // 영상 자기소개서(사용자 요청, 2026-11-04)
         id: "about-video", col: 9, row: 3.5, w: 2, kind: "monitor", label: "영상 자기소개서", action: "영상 자기소개서 보기",
         content: { title: "영상 자기소개서", lede: "직접 만든 영상 자기소개서입니다.", Body: VideoPanel },
+      },
+      { // 자기소개서(사용자 요청, 2026-11-09 — 시안 A 책상 위 서류철). 팝업은 소제목만, 전문은 아래 방 페이지
+        id: "about-letter", col: 12, row: 3.5, w: 2, kind: "desk", label: "자기소개서", action: "자기소개서 보기",
+        content: { title: "자기소개서", lede: "소제목만 먼저 — 전문은 게임창 아래에 있습니다.", Body: CoverLetterPreview },
       },
     ],
   },
