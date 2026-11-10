@@ -169,13 +169,13 @@ export const ROOMS: Record<RoomId, Room> = {
     controlsExtra: [],
     objects: [
       // 액자(초상화)는 장식 — 자기소개와 자기소개서를 책상 하나로 합쳤다(2026-11-10 사용자 요청, 시안 A "책상만 남기기")
-      { id: "about-profile", col: 5, row: 3.5, w: 2, kind: "profile", label: "초상화", decor: true },
+      { id: "about-profile", col: 5, row: 2.5, w: 2, kind: "profile", label: "초상화", decor: true },
       { // 영상 자기소개서(사용자 요청, 2026-11-04)
         id: "about-video", col: 9, row: 3.5, w: 2, kind: "monitor", label: "영상 자기소개서", action: "영상 자기소개서 보기",
         content: { title: "영상 자기소개서", lede: "직접 만든 영상 자기소개서입니다.", Body: VideoPanel },
       },
       { // 자기소개(사용자 요청, 2026-11-09 — 시안 A 책상 위 서류철). 팝업은 소개글 + 소제목만, 전문은 아래 방 페이지
-        id: "about-letter", col: 12, row: 3.5, w: 2, kind: "desk", label: "자기소개", action: "자기소개 보기",
+        id: "about-letter", col: 5, row: 3.5, w: 2, kind: "desk", label: "자기소개", action: "자기소개 보기",
         content: { title: "자기소개", lede: "전문은 게임창 아래에 있습니다.", Body: CoverLetterPreview },
       },
     ],
