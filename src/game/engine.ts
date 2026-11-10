@@ -259,6 +259,7 @@ export function startEngine(canvas: HTMLCanvasElement): () => void {
 
   function objectAt(p: Pt): RoomObject | null {
     for (const o of ROOMS[room].objects) {
+      if (o.decor) continue;
       const x0 = o.col * TILE - 3, x1 = (o.col + objW(o)) * TILE + 3;
       const y0 = o.row * TILE + OBJ_TOP[o.kind] - 2, y1 = o.row * TILE + TILE;
       if (p.x >= x0 && p.x < x1 && p.y >= y0 && p.y < y1) return o;
@@ -459,6 +460,7 @@ export function startEngine(canvas: HTMLCanvasElement): () => void {
   function checkNear() {
     let found: RoomObject | null = null, best = Infinity;
     for (const o of ROOMS[room].objects) {
+      if (o.decor) continue; // 장식은 E 대상이 아니다
       const c = objCenter(o);
       const reach = (objW(o) * TILE) / 2 + TILE * 1.1;
       const d = Math.hypot(player.x - c.x, player.y - c.y);

@@ -1,14 +1,7 @@
 import { ITEM_BY_ID } from "../../game/roguelike/items";
 import { useRlStore } from "../../game/roguelike/store";
-import { useGameStore } from "../../store";
 
 const fmtTime = (t: number) => `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, "0")}`;
-
-// 판을 끝내고 방 밖(게임 및 프로그램 제작)으로 — 문을 걸어 나갈 필요 없이 바로(방을 떠나면 GameSection이 판을 정리한다)
-const toLobby = () => {
-  useRlStore.getState().quit();
-  useGameStore.getState().enterRoom("works");
-};
 
 // 로그라이크 진행 중 게임창 위에 뜨는 창: 일시정지 버튼 / 레벨업 선택지 / 일시정지 / 게임 오버
 export default function RlOverlay() {
@@ -62,8 +55,7 @@ export default function RlOverlay() {
         <div className="rl-actions">
           <button onClick={togglePause}>계속하기 (Esc)</button>
           <button onClick={start}>처음부터</button>
-          <button onClick={quit}>그만하기</button>
-          <button onClick={toLobby}>제작실로 나가기</button>
+          <button onClick={quit}>게임 종료</button>
         </div>
       </div>
     );
@@ -85,8 +77,7 @@ export default function RlOverlay() {
         )}
         <div className="rl-actions">
           <button onClick={start}>다시 하기 (Enter)</button>
-          <button onClick={quit}>그만하기 (Esc)</button>
-          <button onClick={toLobby}>제작실로 나가기</button>
+          <button onClick={quit}>게임 종료 (Esc)</button>
         </div>
       </div>
     );

@@ -1,10 +1,43 @@
 // 진화 시뮬레이션 게임 전시실 페이지. 실제 게임은 아직 없고, 사용자가 기획한 "진화 전투" 부분만 게임창에 구현했다(2026-10-26)
 import DownloadButton from "./DownloadButton";
+import GameDesign, { type GameDesignData } from "./GameDesign";
+
+/*
+ * 페이지 아래 "게임 기획" 블록(py.Factory·로그라이크 페이지와 같은 틀). 사용자가 직접 쓴다 — 여기 DESIGN만 고치면 된다.
+ *  - pitch  : 이 게임을 한 문장으로. 블록 맨 위에 크게 나온다
+ *  - specs  : 개요 표. ["항목", "내용"] — 내용이 빈 줄은 화면에 안 나온다. 줄을 더하거나 빼도 된다
+ *  - loop   : 핵심 루프. 플레이가 도는 순서대로 짧게(끝나면 "처음으로"가 자동으로 붙는다)
+ *  - points : 설계 포인트 카드. title은 짧은 제목, body는 두세 문장. 3장이나 4장이 보기 좋다
+ *  - plans  : 다음 계획 목록(없으면 items를 비워 두면 된다)
+ * "" 로 비워 둔 칸은 화면에 나오지 않는다. 큰따옴표 안에서 줄을 바꾸면 파일이 깨지니, 긴 글은 백틱(` `)으로 감쌀 것.
+ * loop·상태는 지금 웹 체험판에 구현된 규칙을 그대로 적어 둔 것 — 실제 기획과 다르면 고칠 것.
+ */
+const DESIGN: GameDesignData = {
+  pitch: "상성에 맞게 진화하고, 자동 전투를 즐기는 전략 게임",
+  specs: [
+    ["장르", "오토체스 장르와 유사, 그러나 같진 않음"],
+    ["엔진", "유니티"],
+    ["형태", "2D 탑다운 그래픽"],
+    ["상태", "기획 중 · 웹 체험판으로 전투 규칙 검증"],
+  ],
+  loop: ["적의 강화 확인", "상성에 맞춰 아군 강화", "전투 시작", "자동 전투", "이기면 새 적 · 강화 다시 짜기"],
+  points: [
+    { title: "", body: "" },
+    { title: "", body: "" },
+    { title: "", body: "" },
+  ],
+  plans: {
+    title: "다음 계획",
+    items: [
+      "현재 유니티에서 개발중, PC 및 안드로이드 체험판 제작 완료단계",
+    ],
+  },
+};
 
 export default function EvolutionPage() {
   return (
     <>
-      <DownloadButton game="진화 시뮬레이션 게임" platform="출시 전 · 기획 중" />
+      <DownloadButton game="진화 시뮬레이션 게임" platform="출시 전 · 초기 개발중" />
       <div className="prose">
         <p>기획 중인 진화 시뮬레이션 게임의 핵심 장면만 떼어 온 체험판입니다. 왼쪽 화면에서는 아군(초록) 15명과 적(빨강) 15명이
         자동으로 싸우고, 플레이어는 오른쪽 공간에서 아군의 진화 방향을 고릅니다.</p>
@@ -21,6 +54,7 @@ export default function EvolutionPage() {
         </ul>
         <p className="note">실제 게임 빌드가 아니라 웹으로 만든 기획 검증용 체험판입니다.</p>
       </div>
+      <GameDesign data={DESIGN} />
     </>
   );
 }

@@ -1,5 +1,4 @@
 import { ArchivePicker } from "../content/panels/ArchiveShelf";
-import AboutPanel from "../content/panels/AboutPanel";
 import VideoPanel from "../content/panels/VideoPanel";
 import WorksGuide from "../content/panels/WorksGuide";
 import { CoverLetterPreview } from "../content/CoverLetter";
@@ -39,8 +38,9 @@ export type RoomObject = {
   onAlt?: () => void;  // Q(가까이 있을 때) 보조 동작
   altAction?: string;  // 조작 배지 Q 설명
 } & (
-  | { content: PanelContent; onActivate?: never }  // 클릭/E → 모달 패널
-  | { onActivate: () => void; content?: never }    // 클릭/E → 체험판 고유 동작(예: py.Factory 코딩창)
+  | { content: PanelContent; onActivate?: never; decor?: never }  // 클릭/E → 모달 패널
+  | { onActivate: () => void; content?: never; decor?: never }  // 클릭/E → 체험판 고유 동작(예: py.Factory 코딩창)
+  | { decor: true; content?: never; onActivate?: never } // 눌리지 않는 장식(그려지고 길은 막지만 E·클릭 대상이 아니다)
 );
 
 export type Room = {
@@ -113,7 +113,7 @@ export const ROOMS: Record<RoomId, Room> = {
   evolution: {
     name: "진화 시뮬레이션 게임 체험실",
     sign: "진화 시뮬레이션 게임",
-    summary: "기획 중인 진화 시뮬레이션 게임. 곧 공개.",
+    summary: "기획 중인 진화 시뮬레이션 게임. 현재 개발 초기단계.",
     tag: "오른쪽 버튼으로 아군(초록)을 강화하고 전투 시작을 누르세요. 왼쪽 화면에서 적(빨강)과 싸웁니다.",
     exits: { right: "works" },
     controlsExtra: [{ key: "Q", label: "강화 1 빼기(강화 버튼 앞에서 · 우클릭)" }],
@@ -164,21 +164,19 @@ export const ROOMS: Record<RoomId, Room> = {
     name: "자기소개",
     sign: "자기소개",
     summary: "게임 개발자 김신우 소개와 연락처.",
-    tag: "액자·책상·모니터를 클릭하거나, 가까이 가서 E를 누르세요. 아래에 소개가 이어집니다.",
+    tag: "책상·모니터를 클릭하거나, 가까이 가서 E를 누르세요. 아래에 소개가 이어집니다.",
     exits: { left: "lobby" },
     controlsExtra: [],
     objects: [
-      {
-        id: "about-profile", col: 5, row: 3.5, w: 2, kind: "profile", label: "자기소개", action: "자기소개 보기",
-        content: { title: "자기소개", lede: "게임 개발자 김신우", Body: AboutPanel },
-      },
+      // 액자(초상화)는 장식 — 자기소개와 자기소개서를 책상 하나로 합쳤다(2026-11-10 사용자 요청, 시안 A "책상만 남기기")
+      { id: "about-profile", col: 5, row: 3.5, w: 2, kind: "profile", label: "초상화", decor: true },
       { // 영상 자기소개서(사용자 요청, 2026-11-04)
         id: "about-video", col: 9, row: 3.5, w: 2, kind: "monitor", label: "영상 자기소개서", action: "영상 자기소개서 보기",
         content: { title: "영상 자기소개서", lede: "직접 만든 영상 자기소개서입니다.", Body: VideoPanel },
       },
-      { // 자기소개서(사용자 요청, 2026-11-09 — 시안 A 책상 위 서류철). 팝업은 소제목만, 전문은 아래 방 페이지
-        id: "about-letter", col: 12, row: 3.5, w: 2, kind: "desk", label: "자기소개서", action: "자기소개서 보기",
-        content: { title: "자기소개서", lede: "전문은 게임창 아래에 있습니다.", Body: CoverLetterPreview },
+      { // 자기소개(사용자 요청, 2026-11-09 — 시안 A 책상 위 서류철). 팝업은 소개글 + 소제목만, 전문은 아래 방 페이지
+        id: "about-letter", col: 12, row: 3.5, w: 2, kind: "desk", label: "자기소개", action: "자기소개 보기",
+        content: { title: "자기소개", lede: "전문은 게임창 아래에 있습니다.", Body: CoverLetterPreview },
       },
     ],
   },
